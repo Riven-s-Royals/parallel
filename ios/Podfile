@@ -9,6 +9,7 @@ target 'parallel' do
   config = use_native_modules!
 
   use_react_native!(:path => config["reactNativePath"])
+  pod 'react-native-mapbox-gl', :path => '../node_modules/@react-native-mapbox-gl/maps'
 
   # Enables Flipper.
   #
