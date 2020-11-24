@@ -1,0 +1,12 @@
+{
+  "name": "parallel",
+  "displayName": "parallel",
+  "expo": {
+    "name": "parallel",
+    "slug": "parallel",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
