@@ -1,24 +1,3 @@
-// import { StatusBar } from 'expo-status-bar';
-// import React from 'react';
-// import { StyleSheet, Text, View } from 'react-native';
-
-// export default function App() {
-//   return (
-//     <View style={styles.container}>
-//       <Text>Open up App.js to start working on your app!</Text>
-//       <StatusBar style="auto" />
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-// });
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Image, Platform } from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
@@ -28,19 +7,41 @@ MapboxGL.setAccessToken(
 );
 
 export default App = () => {
+  const renderAnnotations = () => {
+    return (
+      <MapboxGL.PointAnnotation
+        key="pointAnnotation"
+        id="pointAnnotation"
+        coordinate={[-74.00928918392906, 40.70562853006794]}
+      >
+        <View
+          style={{
+            height: 30,
+            width: 30,
+            backgroundColor: '#00cccc',
+            borderRadius: 50,
+            borderColor: '#fff',
+            borderWidth: 3,
+          }}
+        />
+      </MapboxGL.PointAnnotation>
+    );
+  };
+
   return (
     <View style={{ flex: 1, height: '100%', width: '100%' }}>
       <MapboxGL.MapView
         styleURL={MapboxGL.StyleURL.Street}
         zoomLevel={16}
-        centerCoordinate={[3.33624, 6.57901]}
+        centerCoordinate={[-74.00928918392906, 40.70562853006794]}
         showUserLocation={true}
         style={{ flex: 1 }}
       >
         <MapboxGL.Camera
           zoomLevel={16}
-          centerCoordinate={[3.33624, 6.57901]}
+          centerCoordinate={[-74.00928918392906, 40.70562853006794]}
         ></MapboxGL.Camera>
+        {renderAnnotations()}
       </MapboxGL.MapView>
     </View>
   );
