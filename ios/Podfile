@@ -10,7 +10,9 @@ target 'parallel' do
 
   use_react_native!(:path => config["reactNativePath"])
   pod 'react-native-mapbox-gl', :path => '../node_modules/@react-native-mapbox-gl/maps'
-
+  # add the Firebase pod for Google Analytics
+  pod 'Firebase/Analytics'
+  pod 'Firebase/Firestore'
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
