@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, View, Image, Platform, Text } from 'react-native';
+import { StyleSheet, View, Image, Platform, Text, TouchableOpacity, AppRegistry, Button } from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import firestore from '@react-native-firebase/firestore';
+import { RNCamera } from 'react-native-camera';
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYnVyZGl0dGIiLCJhIjoiY2tmd3BjeDNoMW1iODJ5cWd3aG16ejR1NyJ9.6SP4_hBVmB2eXIQI_PXHtA'
@@ -62,6 +63,10 @@ class App extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, height: '100%', width: '100%' }}>
+        <Button style={{ justifyContent: "right"}}
+        title="Camera"
+        onPress={() => this.props.navigation.navigate('Camera')}
+        />
         <MapboxGL.MapView
           styleURL={MapboxGL.StyleURL.Street}
           zoomLevel={16}
@@ -81,3 +86,4 @@ class App extends React.Component {
 }
 
 export default App;
+
