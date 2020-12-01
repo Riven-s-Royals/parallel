@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, View, Image, Platform, Text } from 'react-native';
+import { StyleSheet, View, Image, Platform, Text, TouchableOpacity, AppRegistry, Button } from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import firestore from '@react-native-firebase/firestore';
 import Geolocation from 'react-native-geolocation-service';
+import { RNCamera } from 'react-native-camera';
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYnVyZGl0dGIiLCJhIjoiY2tmd3BjeDNoMW1iODJ5cWd3aG16ejR1NyJ9.6SP4_hBVmB2eXIQI_PXHtA'
@@ -160,6 +161,18 @@ class App extends React.Component {
         {this.state.userCoords ? (
           <MapboxGL.MapView
             styleURL={MapboxGL.StyleURL.Street}
+        <Button style={{ justifyContent: "right"}}
+        title="Camera"
+        onPress={() => this.props.navigation.navigate('Camera')}
+        />
+        <MapboxGL.MapView
+          styleURL={MapboxGL.StyleURL.Street}
+          zoomLevel={16}
+          centerCoordinate={[-74.00928918392906, 40.70562853006794]}
+          showUserLocation={true}
+          style={{ flex: 1 }}
+        >
+          <MapboxGL.Camera
             zoomLevel={16}
             centerCoordinate={this.state.userCoords}
             showUserLocation={true}
@@ -181,3 +194,4 @@ class App extends React.Component {
 }
 
 export default App;
+
