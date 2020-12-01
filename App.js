@@ -15,19 +15,27 @@ class App extends React.Component {
       userCoords: [],
       locations: [],
     };
-    // this.getCoordinates = this.getCoordinates.bind(this);
-    // this.renderAnnotations = this.renderAnnotations.bind(this);
-    // this.subscriber = firestore()
-    //   .collection('locations')
-    //   .doc('Er22DEkmMqBfzRZCQZA0')
-    //   .onSnapshot((doc) => {
-    //     this.setState({
-    //       latitude: { ...doc.data().coordinates }[0].latitude,
-    //       longitude: { ...doc.data().coordinates }[0].longitude,
-    //     });
-    //     console.log('latitude?!', this.state.latitude);
-    //     console.log('longitude?!', this.state.longitude);
-    //   });
+    this.getCoordinates = this.getCoordinates.bind(this);
+    this.renderAnnotations = this.renderAnnotations.bind(this);
+    this.renderUserAnnotation = this.renderUserAnnotation.bind(this);
+    this.subscriber = firestore()
+      .collection('locations')
+      .doc('Er22DEkmMqBfzRZCQZA0')
+      .onSnapshot((doc) => {
+        this.setState((prevState) => {
+          return {
+            ...prevState,
+            locations: [
+              ...prevState.locations,
+              [
+                { ...doc.data().coordinates }[0].longitude,
+                { ...doc.data().coordinates }[0].latitude,
+              ],
+            ],
+          };
+        });
+        console.log('this state location', this.state.locations[0]);
+      });
   }
   async requestPermission() {
     try {
@@ -55,6 +63,10 @@ class App extends React.Component {
     Geolocation.getCurrentPosition(
       (position) => {
         console.log('getLocation position:', position);
+        this.setState({
+          userCoords: [position.coords.longitude, position.coords.latitude],
+        });
+        console.log('this state user', this.state.userCoords);
       },
       (error) => {
         // See error code charts below.
@@ -75,53 +87,74 @@ class App extends React.Component {
     } else {
       this.getLocation();
     }
+    this.getCoordinates();
   }
-  // componentDidMount() {
-  // this.getCoordinates();
-  // }
-  // async getCoordinates() {
-  //   const coordinatesDocument = await firestore()
-  //     .collection('locations')
-  //     .doc('Er22DEkmMqBfzRZCQZA0')
-  //     .get();
-  //   console.log('coordinatesDocumet', coordinatesDocument);
-  // }
 
-  // renderAnnotations() {
-  //   return (
-  //     <MapboxGL.PointAnnotation
-  //       key="pointAnnotation"
-  //       id="pointAnnotation"
-  //       coordinate={[this.state.longitude, this.state.latitude]}
-  //     >
-  //       <View
-  //         style={{
-  //           height: 30,
-  //           width: 30,
-  //           backgroundColor: '#00cccc',
-  //           borderRadius: 50,
-  //           borderColor: '#fff',
-  //           borderWidth: 3,
-  //         }}
-  //       />
-  //     </MapboxGL.PointAnnotation>
-  //   );
-  // }
+  async getCoordinates() {
+    const coordinatesDocument = await firestore()
+      .collection('locations')
+      .doc('Er22DEkmMqBfzRZCQZA0')
+      .get();
+    console.log('coordinatesDocument', coordinatesDocument);
+  }
+
+  renderUserAnnotation() {
+    return (
+      <MapboxGL.PointAnnotation
+        key="userAnnotation"
+        id="userAnnotation"
+        coordinate={this.state.userCoords}
+      >
+        <View
+          style={{
+            height: 20,
+            width: 20,
+            backgroundColor: '#e76f51',
+            borderRadius: 50,
+            borderColor: '#fff',
+            borderWidth: 2,
+          }}
+        />
+      </MapboxGL.PointAnnotation>
+    );
+  }
+
+  renderAnnotations() {
+    return (
+      <MapboxGL.PointAnnotation
+        key="pointAnnotation"
+        id="pointAnnotation"
+        coordinate={this.state.locations[0]}
+      >
+        <View
+          style={{
+            height: 30,
+            width: 30,
+            backgroundColor: '#00cccc',
+            borderRadius: 50,
+            borderColor: '#fff',
+            borderWidth: 3,
+          }}
+        />
+      </MapboxGL.PointAnnotation>
+    );
+  }
   render() {
     return (
       <View style={{ flex: 1, height: '100%', width: '100%' }}>
         <MapboxGL.MapView
           styleURL={MapboxGL.StyleURL.Street}
           zoomLevel={16}
-          centerCoordinate={[-74.00928918392906, 40.70562853006794]}
+          centerCoordinate={this.state.userCoords}
           showUserLocation={true}
           style={{ flex: 1 }}
         >
           <MapboxGL.Camera
             zoomLevel={16}
-            centerCoordinate={[-74.00928918392906, 40.70562853006794]}
+            centerCoordinate={this.state.userCoords}
           ></MapboxGL.Camera>
-          {/* {this.renderAnnotations()} */}
+          {this.renderUserAnnotation()}
+          {this.renderAnnotations()}
         </MapboxGL.MapView>
       </View>
     );
