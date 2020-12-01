@@ -65,3 +65,5 @@ web-build/
 
 #ios
 .secrets.js.icloud
+
+secrets.js

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, View, Image, Platform, Text } from 'react-native';
+import { StyleSheet, View, Image, Platform, Text, Button } from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import firestore from '@react-native-firebase/firestore';
 import Geolocation from 'react-native-geolocation-service';
+import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
+import { browse } from './foursquare';
 
-MapboxGL.setAccessToken(
-  'pk.eyJ1IjoiYnVyZGl0dGIiLCJhIjoiY2tmd3BjeDNoMW1iODJ5cWd3aG16ejR1NyJ9.6SP4_hBVmB2eXIQI_PXHtA'
-);
+MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
 
 class App extends React.Component {
   constructor(props) {
@@ -15,10 +15,13 @@ class App extends React.Component {
       userCoords: [],
       locations: [],
       permissionsGranted: null,
+      foursquare: [],
     };
     this.getCoordinates = this.getCoordinates.bind(this);
     this.renderAnnotations = this.renderAnnotations.bind(this);
     this.renderUserAnnotation = this.renderUserAnnotation.bind(this);
+    this.render4SqAnnotation = this.render4SqAnnotation.bind(this);
+    this.get4SqAnnotation = this.get4SqAnnotation.bind(this);
     // To setup an active listener to react to any
     // changes to the query
     // this.subscriber = firestore()
@@ -91,6 +94,7 @@ class App extends React.Component {
       this.getLocation();
     }
     this.getCoordinates();
+    this.get4SqAnnotation();
   }
 
   async getCoordinates() {
@@ -98,7 +102,7 @@ class App extends React.Component {
       .collection('locations')
       .doc('Er22DEkmMqBfzRZCQZA0')
       .get();
-    console.log('doc', doc);
+    // console.log('doc', doc);
     this.setState((prevState) => {
       return {
         ...prevState,
@@ -111,6 +115,38 @@ class App extends React.Component {
         ],
       };
     });
+  }
+
+  async get4SqAnnotation() {
+    const [response] = await browse();
+    this.setState((prevState) => {
+      return {
+        ...prevState,
+        foursquare: [response.location.lng, response.location.lat],
+      };
+    });
+    // console.log('this state 4s', this.state.foursquare);
+  }
+
+  render4SqAnnotation() {
+    return (
+      <MapboxGL.PointAnnotation
+        key="foursquareAnnotation"
+        id="foursquareAnnotation"
+        coordinate={this.state.foursquare}
+      >
+        <View
+          style={{
+            height: 20,
+            width: 20,
+            backgroundColor: '#ffff00',
+            borderRadius: 50,
+            borderColor: '#fff',
+            borderWidth: 2,
+          }}
+        />
+      </MapboxGL.PointAnnotation>
+    );
   }
 
   renderUserAnnotation() {
@@ -154,6 +190,7 @@ class App extends React.Component {
       </MapboxGL.PointAnnotation>
     );
   }
+
   render() {
     return (
       <View style={{ flex: 1, height: '100%', width: '100%' }}>
@@ -171,6 +208,7 @@ class App extends React.Component {
             ></MapboxGL.Camera>
             {this.renderUserAnnotation()}
             {this.renderAnnotations()}
+            {this.render4SqAnnotation()}
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
