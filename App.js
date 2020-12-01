@@ -14,28 +14,31 @@ class App extends React.Component {
     this.state = {
       userCoords: [],
       locations: [],
+      permissionsGranted: null,
     };
     this.getCoordinates = this.getCoordinates.bind(this);
     this.renderAnnotations = this.renderAnnotations.bind(this);
     this.renderUserAnnotation = this.renderUserAnnotation.bind(this);
-    this.subscriber = firestore()
-      .collection('locations')
-      .doc('Er22DEkmMqBfzRZCQZA0')
-      .onSnapshot((doc) => {
-        this.setState((prevState) => {
-          return {
-            ...prevState,
-            locations: [
-              ...prevState.locations,
-              [
-                { ...doc.data().coordinates }[0].longitude,
-                { ...doc.data().coordinates }[0].latitude,
-              ],
-            ],
-          };
-        });
-        console.log('this state location', this.state.locations[0]);
-      });
+    // To setup an active listener to react to any
+    // changes to the query
+    // this.subscriber = firestore()
+    //   .collection('locations')
+    //   .doc('Er22DEkmMqBfzRZCQZA0')
+    //   .onSnapshot((doc) => {
+    //     this.setState((prevState) => {
+    //       return {
+    //         ...prevState,
+    //         locations: [
+    //           ...prevState.locations,
+    //           [
+    //             { ...doc.data().coordinates }[0].longitude,
+    //             { ...doc.data().coordinates }[0].latitude,
+    //           ],
+    //         ],
+    //       };
+    //     });
+    //     console.log('this state location', this.state.locations[0]);
+    //   });
   }
   async requestPermission() {
     try {
@@ -91,11 +94,23 @@ class App extends React.Component {
   }
 
   async getCoordinates() {
-    const coordinatesDocument = await firestore()
+    const doc = await firestore()
       .collection('locations')
       .doc('Er22DEkmMqBfzRZCQZA0')
       .get();
-    console.log('coordinatesDocument', coordinatesDocument);
+    console.log('doc', doc);
+    this.setState((prevState) => {
+      return {
+        ...prevState,
+        locations: [
+          ...prevState.locations,
+          [
+            { ...doc.data().coordinates }[0].longitude,
+            { ...doc.data().coordinates }[0].latitude,
+          ],
+        ],
+      };
+    });
   }
 
   renderUserAnnotation() {
@@ -142,20 +157,24 @@ class App extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, height: '100%', width: '100%' }}>
-        <MapboxGL.MapView
-          styleURL={MapboxGL.StyleURL.Street}
-          zoomLevel={16}
-          centerCoordinate={this.state.userCoords}
-          showUserLocation={true}
-          style={{ flex: 1 }}
-        >
-          <MapboxGL.Camera
+        {this.state.userCoords ? (
+          <MapboxGL.MapView
+            styleURL={MapboxGL.StyleURL.Street}
             zoomLevel={16}
             centerCoordinate={this.state.userCoords}
-          ></MapboxGL.Camera>
-          {this.renderUserAnnotation()}
-          {this.renderAnnotations()}
-        </MapboxGL.MapView>
+            showUserLocation={true}
+            style={{ flex: 1 }}
+          >
+            <MapboxGL.Camera
+              zoomLevel={16}
+              centerCoordinate={this.state.userCoords}
+            ></MapboxGL.Camera>
+            {this.renderUserAnnotation()}
+            {this.renderAnnotations()}
+          </MapboxGL.MapView>
+        ) : (
+          <Text>Loading...</Text>
+        )}
       </View>
     );
   }
