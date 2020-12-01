@@ -158,21 +158,13 @@ class App extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, height: '100%', width: '100%' }}>
-        {this.state.userCoords ? (
-          <MapboxGL.MapView
-            styleURL={MapboxGL.StyleURL.Street}
         <Button style={{ justifyContent: "right"}}
         title="Camera"
         onPress={() => this.props.navigation.navigate('Camera')}
         />
-        <MapboxGL.MapView
-          styleURL={MapboxGL.StyleURL.Street}
-          zoomLevel={16}
-          centerCoordinate={[-74.00928918392906, 40.70562853006794]}
-          showUserLocation={true}
-          style={{ flex: 1 }}
-        >
-          <MapboxGL.Camera
+        {this.state.userCoords ? (
+          <MapboxGL.MapView
+            styleURL={MapboxGL.StyleURL.Street}
             zoomLevel={16}
             centerCoordinate={this.state.userCoords}
             showUserLocation={true}
