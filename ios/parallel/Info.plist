@@ -41,6 +41,10 @@
 	<string>Program requires GPS to track cars and job orders</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Program requires GPS to track cars and job orders</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string></string>
+	<key>NSCameraUsageDescription</key>
+	<string>Used to take photos</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Program requires GPS to track cars and job orders</string>
 	<key>UIBackgroundModes</key>
@@ -64,5 +68,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleDefault</string>
 </dict>
 </plist>

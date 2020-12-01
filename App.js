@@ -1,9 +1,19 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, View, Image, Platform, Text, Button } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Image,
+  Platform,
+  Text,
+  TouchableOpacity,
+  AppRegistry,
+  Button,
+} from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import firestore from '@react-native-firebase/firestore';
 import Geolocation from 'react-native-geolocation-service';
 import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
+import { RNCamera } from 'react-native-camera';
 import { browse } from './foursquare';
 
 MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
@@ -194,6 +204,11 @@ class App extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, height: '100%', width: '100%' }}>
+        <Button
+          style={{ justifyContent: 'right' }}
+          title="Camera"
+          onPress={() => this.props.navigation.navigate('Camera')}
+        />
         {this.state.userCoords ? (
           <MapboxGL.MapView
             styleURL={MapboxGL.StyleURL.Street}
