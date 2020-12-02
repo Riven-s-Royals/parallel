@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
   AppRegistry,
   Button,
-} from 'react-native';
-import MapboxGL from '@react-native-mapbox-gl/maps';
-import firestore from '@react-native-firebase/firestore';
-import Geolocation from 'react-native-geolocation-service';
-import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
-import { RNCamera } from 'react-native-camera';
-import { browse } from './foursquare';
+} from "react-native";
+import MapboxGL from "@react-native-mapbox-gl/maps";
+import firestore from "@react-native-firebase/firestore";
+import Geolocation from "react-native-geolocation-service";
+import { MAPBOXGL_ACCESS_TOKEN } from "./secrets";
+import { RNCamera } from "react-native-camera";
+import { browse } from "./foursquare";
 
 MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
 
@@ -59,10 +59,10 @@ class App extends React.Component {
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
       ]).then((result) => {
-        console.log('result', result);
+        console.log("result", result);
         if (
-          result['android.permission.ACCESS_COARSE_LOCATION'] &&
-          result['android.permission.ACCESS_FINE_LOCATION'] === 'granted'
+          result["android.permission.ACCESS_COARSE_LOCATION"] &&
+          result["android.permission.ACCESS_FINE_LOCATION"] === "granted"
         ) {
           this.getLocation();
           this.setState({
@@ -71,34 +71,34 @@ class App extends React.Component {
         }
       });
     } catch (err) {
-      console.warn('err', err);
+      console.warn("err", err);
     }
   }
 
   getLocation() {
     Geolocation.getCurrentPosition(
       (position) => {
-        console.log('getLocation position:', position);
+        console.log("getLocation position:", position);
         this.setState({
           userCoords: [position.coords.longitude, position.coords.latitude],
         });
-        console.log('this state user', this.state.userCoords);
+        console.log("this state user", this.state.userCoords);
       },
       (error) => {
         // See error code charts below.
-        console.log('getLocation error:', error.code, error.message);
+        console.log("getLocation error:", error.code, error.message);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
   }
 
   componentDidMount() {
-    if (Platform.OS === 'ios') {
-      Geolocation.requestAuthorization('whenInUse').then((res) => {
-        console.log('authorization result:', res);
+    if (Platform.OS === "ios") {
+      Geolocation.requestAuthorization("whenInUse").then((res) => {
+        console.log("authorization result:", res);
       });
     }
-    if (Platform.OS === 'android') {
+    if (Platform.OS === "android") {
       this.requestPermission();
     } else {
       this.getLocation();
@@ -109,8 +109,8 @@ class App extends React.Component {
 
   async getCoordinates() {
     const doc = await firestore()
-      .collection('locations')
-      .doc('Er22DEkmMqBfzRZCQZA0')
+      .collection("locations")
+      .doc("Er22DEkmMqBfzRZCQZA0")
       .get();
     // console.log('doc', doc);
     this.setState((prevState) => {
@@ -149,9 +149,9 @@ class App extends React.Component {
           style={{
             height: 20,
             width: 20,
-            backgroundColor: '#ffff00',
+            backgroundColor: "#ffff00",
             borderRadius: 50,
-            borderColor: '#fff',
+            borderColor: "#fff",
             borderWidth: 2,
           }}
         />
@@ -170,9 +170,9 @@ class App extends React.Component {
           style={{
             height: 20,
             width: 20,
-            backgroundColor: '#e76f51',
+            backgroundColor: "#e76f51",
             borderRadius: 50,
-            borderColor: '#fff',
+            borderColor: "#fff",
             borderWidth: 2,
           }}
         />
@@ -191,9 +191,9 @@ class App extends React.Component {
           style={{
             height: 30,
             width: 30,
-            backgroundColor: '#00cccc',
+            backgroundColor: "#00cccc",
             borderRadius: 50,
-            borderColor: '#fff',
+            borderColor: "#fff",
             borderWidth: 3,
           }}
         />
@@ -203,11 +203,11 @@ class App extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1, height: '100%', width: '100%' }}>
+      <View style={{ flex: 1, height: "100%", width: "100%" }}>
         <Button
-          style={{ justifyContent: 'right' }}
+          style={{ justifyContent: "right" }}
           title="Camera"
-          onPress={() => this.props.navigation.navigate('Camera')}
+          onPress={() => this.props.navigation.navigate("Camera")}
         />
         {this.state.userCoords ? (
           <MapboxGL.MapView
