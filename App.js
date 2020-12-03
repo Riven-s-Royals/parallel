@@ -83,6 +83,7 @@ class App extends React.Component {
           userCoords: [position.coords.longitude, position.coords.latitude],
         });
         console.log("this state user", this.state.userCoords);
+        this.get4SqAnnotation();
       },
       (error) => {
         // See error code charts below.
@@ -104,7 +105,7 @@ class App extends React.Component {
       this.getLocation();
     }
     this.getCoordinates();
-    this.get4SqAnnotation();
+    //this.get4SqAnnotation();
   }
 
   async getCoordinates() {
@@ -128,14 +129,19 @@ class App extends React.Component {
   }
 
   async get4SqAnnotation() {
-    const [response] = await browse();
+    const userCoordinates = this.state.userCoords;
+    console.log("inside get4sqAnnotation: user cords", userCoordinates);
+    const venuesCords = await browse(userCoordinates);
+    console.log("response from browse", venuesCords);
+
     this.setState((prevState) => {
       return {
         ...prevState,
-        foursquare: [response.location.lng, response.location.lat],
+        //we'd pull entire objects
+        foursquare: venuesCords,
       };
     });
-    // console.log('this state 4s', this.state.foursquare);
+    console.log("this state 4s", this.state.foursquare);
   }
 
   render4SqAnnotation() {
