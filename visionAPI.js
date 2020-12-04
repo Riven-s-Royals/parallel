@@ -14,7 +14,7 @@ async function quickstart() {
   const [result] = await client.landmarkDetection(fileName);
   const landmarks = result.landmarkAnnotations;
   console.log('Landmarks:');
-  landmarks.forEach((landmark) => console.log(landmark.locations));
+  landmarks.forEach((landmark) => console.log(landmark));
 }
 
 quickstart();

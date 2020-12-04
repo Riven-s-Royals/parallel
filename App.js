@@ -15,6 +15,7 @@ import Geolocation from 'react-native-geolocation-service';
 import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
 import { RNCamera } from 'react-native-camera';
 import { browse } from './foursquare';
+import renderAnnotation from './renderAnnotation';
 
 MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
 
@@ -28,9 +29,6 @@ class App extends React.Component {
       foursquare: [],
     };
     this.getCoordinates = this.getCoordinates.bind(this);
-    this.renderAnnotations = this.renderAnnotations.bind(this);
-    this.renderUserAnnotation = this.renderUserAnnotation.bind(this);
-    this.render4SqAnnotation = this.render4SqAnnotation.bind(this);
     this.get4SqAnnotation = this.get4SqAnnotation.bind(this);
     // To setup an active listener to react to any
     // changes to the query
@@ -138,69 +136,6 @@ class App extends React.Component {
     // console.log('this state 4s', this.state.foursquare);
   }
 
-  render4SqAnnotation() {
-    return (
-      <MapboxGL.PointAnnotation
-        key="foursquareAnnotation"
-        id="foursquareAnnotation"
-        coordinate={this.state.foursquare}
-      >
-        <View
-          style={{
-            height: 20,
-            width: 20,
-            backgroundColor: '#ffff00',
-            borderRadius: 50,
-            borderColor: '#fff',
-            borderWidth: 2,
-          }}
-        />
-      </MapboxGL.PointAnnotation>
-    );
-  }
-
-  renderUserAnnotation() {
-    return (
-      <MapboxGL.PointAnnotation
-        key="userAnnotation"
-        id="userAnnotation"
-        coordinate={this.state.userCoords}
-      >
-        <View
-          style={{
-            height: 20,
-            width: 20,
-            backgroundColor: '#e76f51',
-            borderRadius: 50,
-            borderColor: '#fff',
-            borderWidth: 2,
-          }}
-        />
-      </MapboxGL.PointAnnotation>
-    );
-  }
-
-  renderAnnotations() {
-    return (
-      <MapboxGL.PointAnnotation
-        key="pointAnnotation"
-        id="pointAnnotation"
-        coordinate={this.state.locations[0]}
-      >
-        <View
-          style={{
-            height: 30,
-            width: 30,
-            backgroundColor: '#00cccc',
-            borderRadius: 50,
-            borderColor: '#fff',
-            borderWidth: 3,
-          }}
-        />
-      </MapboxGL.PointAnnotation>
-    );
-  }
-
   render() {
     return (
       <View style={{ flex: 1, height: '100%', width: '100%' }}>
@@ -221,9 +156,9 @@ class App extends React.Component {
               zoomLevel={16}
               centerCoordinate={this.state.userCoords}
             ></MapboxGL.Camera>
-            {this.renderUserAnnotation()}
-            {this.renderAnnotations()}
-            {this.render4SqAnnotation()}
+            {renderAnnotation('user', this.state.userCoords)}
+            {renderAnnotation('firestore', this.state.locations[0])}
+            {renderAnnotation('foursquare', this.state.foursquare)}
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
