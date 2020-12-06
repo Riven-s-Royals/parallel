@@ -15,8 +15,6 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 import firestore from '@react-native-firebase/firestore';
 import Geolocation from 'react-native-geolocation-service';
 import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
-import { RNCamera } from 'react-native-camera';
-import Animated from 'react-native-reanimated';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Constants from 'expo-constants';
 import { browse } from './foursquare';
