@@ -10,7 +10,6 @@ import {
   AppRegistry,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import storage from '@react-native-firebase/storage';
 
 class Camera extends React.Component {
   constructor() {
