@@ -8,13 +8,19 @@ import {
   TouchableOpacity,
   AppRegistry,
   Button,
+  ScrollView,
+  LogBox,
 } from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import firestore from '@react-native-firebase/firestore';
 import Geolocation from 'react-native-geolocation-service';
 import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
-import { RNCamera } from 'react-native-camera';
+import BottomSheet from 'reanimated-bottom-sheet';
+import Constants from 'expo-constants';
 import { browse } from './foursquare';
+import renderAnnotation from './renderAnnotation';
+
+LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
 
@@ -28,9 +34,6 @@ class App extends React.Component {
       foursquare: [],
     };
     this.getCoordinates = this.getCoordinates.bind(this);
-    this.renderAnnotations = this.renderAnnotations.bind(this);
-    this.renderUserAnnotation = this.renderUserAnnotation.bind(this);
-    this.render4SqAnnotation = this.render4SqAnnotation.bind(this);
     this.get4SqAnnotation = this.get4SqAnnotation.bind(this);
     // To setup an active listener to react to any
     // changes to the query
@@ -137,70 +140,35 @@ class App extends React.Component {
     });
     // console.log('this state 4s', this.state.foursquare);
   }
+  renderInner = () => (
+    <View style={styles.panel}>
+      <Text style={styles.panelTitle}>Swipe Up To Explore!</Text>
+      {/* <Text style={styles.panelSubtitle}>So Much</Text> */}
+      <Image style={styles.photo} source={require('./assets/wakeupcat.jpg')} />
+      <ScrollView style={styles.scrollView}>
+        <Text style={styles.scrollText}>First Text Box</Text>
+        <Text style={styles.scrollText}>Second Text Box</Text>
+        <Text style={styles.scrollText}>Third Text Box</Text>
+        <Text style={styles.scrollText}>Fourth Text Box</Text>
+        <Text style={styles.scrollText}>Fifth Text Box</Text>
+        <Text style={styles.scrollText}>Sixth Text Box</Text>
+        <Text style={styles.scrollText}>Seventh Text Box</Text>
+        <Text style={styles.scrollText}>Eighth Text Box</Text>
+        <Text style={styles.scrollText}>Ninth Text Box</Text>
+        <Text style={styles.scrollText}>Tenth Text Box</Text>
+      </ScrollView>
+    </View>
+  );
 
-  render4SqAnnotation() {
-    return (
-      <MapboxGL.PointAnnotation
-        key="foursquareAnnotation"
-        id="foursquareAnnotation"
-        coordinate={this.state.foursquare}
-      >
-        <View
-          style={{
-            height: 20,
-            width: 20,
-            backgroundColor: '#ffff00',
-            borderRadius: 50,
-            borderColor: '#fff',
-            borderWidth: 2,
-          }}
-        />
-      </MapboxGL.PointAnnotation>
-    );
-  }
+  renderHeader = () => (
+    <View style={styles.header}>
+      <View style={styles.panelHeader}>
+        <View style={styles.panelHandle} />
+      </View>
+    </View>
+  );
 
-  renderUserAnnotation() {
-    return (
-      <MapboxGL.PointAnnotation
-        key="userAnnotation"
-        id="userAnnotation"
-        coordinate={this.state.userCoords}
-      >
-        <View
-          style={{
-            height: 20,
-            width: 20,
-            backgroundColor: '#e76f51',
-            borderRadius: 50,
-            borderColor: '#fff',
-            borderWidth: 2,
-          }}
-        />
-      </MapboxGL.PointAnnotation>
-    );
-  }
-
-  renderAnnotations() {
-    return (
-      <MapboxGL.PointAnnotation
-        key="pointAnnotation"
-        id="pointAnnotation"
-        coordinate={this.state.locations[0]}
-      >
-        <View
-          style={{
-            height: 30,
-            width: 30,
-            backgroundColor: '#00cccc',
-            borderRadius: 50,
-            borderColor: '#fff',
-            borderWidth: 3,
-          }}
-        />
-      </MapboxGL.PointAnnotation>
-    );
-  }
-
+  myRef = React.createRef();
   render() {
     return (
       <View style={{ flex: 1, height: '100%', width: '100%' }}>
@@ -221,16 +189,83 @@ class App extends React.Component {
               zoomLevel={16}
               centerCoordinate={this.state.userCoords}
             ></MapboxGL.Camera>
-            {this.renderUserAnnotation()}
-            {this.renderAnnotations()}
-            {this.render4SqAnnotation()}
+            {renderAnnotation('user', this.state.userCoords)}
+            {renderAnnotation('firestore', this.state.locations[0])}
+            {renderAnnotation('foursquare', this.state.foursquare)}
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
         )}
+        <BottomSheet
+          ref={this.myRef}
+          snapPoints={[800, 125]}
+          renderContent={this.renderInner}
+          renderHeader={this.renderHeader}
+          initialSnap={1}
+        />
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  panelContainer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  panel: {
+    height: 800,
+    padding: 20,
+    backgroundColor: '#f7f5eee8',
+  },
+  header: {
+    backgroundColor: '#f7f5eee8',
+    shadowColor: '#000000',
+    paddingTop: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  panelHeader: {
+    alignItems: 'center',
+  },
+  panelHandle: {
+    width: 40,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#00000040',
+    marginBottom: -10,
+  },
+  panelTitle: {
+    fontSize: 20,
+    height: 35,
+    textAlign: 'center',
+  },
+  panelSubtitle: {
+    fontSize: 14,
+    color: 'gray',
+    height: 30,
+    marginTop: 30,
+    marginBottom: 10,
+  },
+  photo: {
+    width: '100%',
+    height: 300,
+    marginTop: 50,
+  },
+  scrollContainer: {
+    flex: 1,
+    marginTop: Constants.statusBarHeight,
+  },
+  scrollView: {
+    backgroundColor: 'pink',
+    marginHorizontal: 20,
+  },
+  scrollText: {
+    fontSize: 42,
+  },
+});
 
 export default App;

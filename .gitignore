@@ -67,3 +67,6 @@ web-build/
 .secrets.js.icloud
 
 secrets.js
+
+google-cloud-sdk-319.0.0-darwin-x86_64.tar.gz
+google-cloud-sdk/
