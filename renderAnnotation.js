@@ -1,18 +1,22 @@
-import React from 'react';
-import MapboxGL from '@react-native-mapbox-gl/maps';
-import { View } from 'react-native';
+import React from "react";
+import MapboxGL from "@react-native-mapbox-gl/maps";
+import { View } from "react-native";
 
-const renderAnnotation = (source, coordinates) => {
-  let color = source === 'user' ? '#023e8a' : '#00b4d8';
+const renderAnnotation = (source, coordinates, idx) => {
+  let color = source === "user" ? "#023e8a" : "#00b4d8";
   return (
-    <MapboxGL.PointAnnotation coordinate={coordinates}>
+    <MapboxGL.PointAnnotation
+      key={idx}
+      id={`${source}Annotation`}
+      coordinate={coordinates}
+    >
       <View
         style={{
           height: 20,
           width: 20,
           backgroundColor: color,
           borderRadius: 50,
-          borderColor: '#fff',
+          borderColor: "#fff",
           borderWidth: 2,
         }}
       />
