@@ -2,8 +2,8 @@
  * TODO(developer): Uncomment the following lines before running the sample.
  */
 const bucketName = 'parallel-app-capstone';
-// const filename =
-//   '/Users/brandieburditt/Downloads/Eiffel-Tower-4c710a32fca4406c81f49815312339c7.jpg';
+const filename =
+  '/Users/brandieburditt/Downloads/Eiffel-Tower-4c710a32fca4406c81f49815312339c7.jpg';
 
 // Imports the Google Cloud client library
 const { Storage } = require('@google-cloud/storage');
