@@ -36,8 +36,8 @@ class App extends React.Component {
       foursquare: [],
     };
 
-    this.getCoordinates = this.getCoordinates.bind(this);
-    this.get4SqAnnotation = this.get4SqAnnotation.bind(this);
+    this.getFbVenues = this.getFbVenues.bind(this);
+    this.get4SqVenues = this.get4SqVenues.bind(this);
     // To setup an active listener to react to any
     // changes to the query
     // this.subscriber = firestore()
@@ -89,7 +89,7 @@ class App extends React.Component {
           userCoords: [position.coords.longitude, position.coords.latitude],
         });
         console.log("this state user", this.state.userCoords);
-        this.get4SqAnnotation();
+        this.get4SqVenues();
       },
       (error) => {
         // See error code charts below.
@@ -110,11 +110,10 @@ class App extends React.Component {
     } else {
       this.getUserLocation();
     }
-    this.getFbCoordinates();
-    //this.get4SqAnnotation();
+    this.getFbVenues();
   }
 
-  async getFbCoordinates() {
+  async getFbVenues() {
     const doc = await firestore()
       .collection("locations")
       .doc("Er22DEkmMqBfzRZCQZA0")
@@ -134,22 +133,16 @@ class App extends React.Component {
     });
   }
 
-  async get4SqAnnotation() {
+  async get4SqVenues() {
     const userCoordinates = this.state.userCoords;
-    //console.log("inside get4sqAnnotation: user cords", userCoordinates);
     const venuesArray = await browse(userCoordinates);
-    console.log("response from browse", venuesArray);
 
     this.setState((prevState) => {
-      //setting 4square coords on state
       return {
         ...prevState,
-        //we'd pull entire objects
         foursquare: venuesArray,
       };
     });
-    //console.log("this.state 4s", this.state.foursquare);
-    //this.render4SqAnnotation();
   }
   renderInner = () => (
     <View style={styles.panel}>
@@ -170,33 +163,6 @@ class App extends React.Component {
       </ScrollView>
     </View>
   );
-
-  // render4SqAnnotation() {
-  //   console.log("inside render4sq", this.state.foursquare);
-  // const venuesArray = this.state.foursquare;
-
-  // return venuesArray.map((venue, idx) => {
-  //   const { lat, lng } = venue.location;
-  //   return (
-  //       <MapboxGL.PointAnnotation
-  //         key={idx}
-  //         id={venue.id}
-  //         coordinate={[lng, lat]}
-  //       >
-  //         <View
-  //           style={{
-  //             height: 20,
-  //             width: 20,
-  //             backgroundColor: "#ffff00",
-  //             borderRadius: 50,
-  //             borderColor: "#fff",
-  //             borderWidth: 2,
-  //           }}
-  //         />
-  //       </MapboxGL.PointAnnotation>
-  //     );
-  //   });
-  // }
 
   renderHeader = () => (
     <View style={styles.header}>
@@ -233,7 +199,7 @@ class App extends React.Component {
             {
               venuesArray.map((venue, idx) => {
                 const { lat, lng } = venue.location;
-                return renderAnnotation("foursquare", [lng, lat]);
+                return renderAnnotation("foursquare", [lng, lat], idx);
               }) //renderAnnotation('foursquare', this.state.foursquare)
             }
           </MapboxGL.MapView>

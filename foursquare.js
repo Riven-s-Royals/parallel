@@ -10,7 +10,6 @@ export const browse = async (userCoordinates) => {
     const { data } = await axios.get(
       `https://api.foursquare.com/v2/venues/search?client_id=${FOURSQUARE_CLIENT_ID}&client_secret=${FOURSQUARE_CLIENT_SECRET}&v=20200101&ll=${latitude},${longitude}&intent=browse&radius=10000&query=museum&limit=5`
     );
-    //console.log("data in foursquare.js", data.response.venues);
     const venuesArray = data.response.venues;
     return venuesArray;
   } catch (err) {
