@@ -5,11 +5,7 @@ import { View } from 'react-native';
 const renderAnnotation = (source, coordinates) => {
   let color = source === 'user' ? '#023e8a' : '#00b4d8';
   return (
-    <MapboxGL.PointAnnotation
-      key={`${source}Annotation`}
-      id={`${source}Annotation`}
-      coordinate={coordinates}
-    >
+    <MapboxGL.PointAnnotation coordinate={coordinates}>
       <View
         style={{
           height: 20,
