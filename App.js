@@ -27,7 +27,7 @@ class App extends React.Component {
       permissionsGranted: null,
       foursquare: [],
     };
-    this.getCoordinates = this.getCoordinates.bind(this);
+    this.getFbCoordinates = this.getFbCoordinates.bind(this);
     this.renderAnnotations = this.renderAnnotations.bind(this);
     this.renderUserAnnotation = this.renderUserAnnotation.bind(this);
     this.render4SqAnnotation = this.render4SqAnnotation.bind(this);
@@ -64,7 +64,7 @@ class App extends React.Component {
           result["android.permission.ACCESS_COARSE_LOCATION"] &&
           result["android.permission.ACCESS_FINE_LOCATION"] === "granted"
         ) {
-          this.getLocation();
+          this.getUserLocation();
           this.setState({
             permissionsGranted: true,
           });
@@ -75,10 +75,10 @@ class App extends React.Component {
     }
   }
 
-  getLocation() {
+  getUserLocation() {
     Geolocation.getCurrentPosition(
       (position) => {
-        console.log("getLocation position:", position);
+        console.log("getUserLocation position:", position);
         this.setState({
           userCoords: [position.coords.longitude, position.coords.latitude],
         });
@@ -87,7 +87,7 @@ class App extends React.Component {
       },
       (error) => {
         // See error code charts below.
-        console.log("getLocation error:", error.code, error.message);
+        console.log("getUserLocation error:", error.code, error.message);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
@@ -102,13 +102,13 @@ class App extends React.Component {
     if (Platform.OS === "android") {
       this.requestPermission();
     } else {
-      this.getLocation();
+      this.getUserLocation();
     }
-    this.getCoordinates();
+    this.getFbCoordinates();
     //this.get4SqAnnotation();
   }
 
-  async getCoordinates() {
+  async getFbCoordinates() {
     const doc = await firestore()
       .collection("locations")
       .doc("Er22DEkmMqBfzRZCQZA0")
@@ -130,39 +130,47 @@ class App extends React.Component {
 
   async get4SqAnnotation() {
     const userCoordinates = this.state.userCoords;
-    console.log("inside get4sqAnnotation: user cords", userCoordinates);
-    const venuesCords = await browse(userCoordinates);
-    console.log("response from browse", venuesCords);
+    //console.log("inside get4sqAnnotation: user cords", userCoordinates);
+    const venuesArray = await browse(userCoordinates);
+    console.log("response from browse", venuesArray);
 
     this.setState((prevState) => {
+      //setting 4square coords on state
       return {
         ...prevState,
         //we'd pull entire objects
-        foursquare: venuesCords,
+        foursquare: venuesArray,
       };
     });
-    console.log("this state 4s", this.state.foursquare);
+    //console.log("this.state 4s", this.state.foursquare);
+    //this.render4SqAnnotation();
   }
 
   render4SqAnnotation() {
-    return (
-      <MapboxGL.PointAnnotation
-        key="foursquareAnnotation"
-        id="foursquareAnnotation"
-        coordinate={this.state.foursquare}
-      >
-        <View
-          style={{
-            height: 20,
-            width: 20,
-            backgroundColor: "#ffff00",
-            borderRadius: 50,
-            borderColor: "#fff",
-            borderWidth: 2,
-          }}
-        />
-      </MapboxGL.PointAnnotation>
-    );
+    console.log("inside render4sq", this.state.foursquare);
+    const venuesArray = this.state.foursquare;
+
+    return venuesArray.map((venue, idx) => {
+      const { lat, lng } = venue.location;
+      return (
+        <MapboxGL.PointAnnotation
+          key={idx}
+          id={venue.id}
+          coordinate={[lng, lat]}
+        >
+          <View
+            style={{
+              height: 20,
+              width: 20,
+              backgroundColor: "#ffff00",
+              borderRadius: 50,
+              borderColor: "#fff",
+              borderWidth: 2,
+            }}
+          />
+        </MapboxGL.PointAnnotation>
+      );
+    });
   }
 
   renderUserAnnotation() {
@@ -170,7 +178,7 @@ class App extends React.Component {
       <MapboxGL.PointAnnotation
         key="userAnnotation"
         id="userAnnotation"
-        coordinate={this.state.userCoords}
+        coordinate={this.state.userCoords} //hardcoded in simulator to be williamsburg,NY
       >
         <View
           style={{
