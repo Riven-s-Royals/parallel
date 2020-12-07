@@ -7,6 +7,7 @@ export const uploadImageToStorage = (path, imageName) => {
   task
     .then(() => {
       console.log('Image uploaded to the bucket!');
+      console.log('path for retrieval function:', imageName);
     })
     .catch((e) => console.log('Error uploading image to storage:', e));
 };
