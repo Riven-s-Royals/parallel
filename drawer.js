@@ -10,14 +10,6 @@ import {
 import Constants from 'expo-constants';
 import { max } from 'react-native-reanimated';
 import { List, ListItem } from 'react-native-elements';
-import storage from '@react-native-firebase/storage';
-
-export const retrieveImage = async (img) => {
-  const ref = storage().ref(`/${img}`);
-  const url = await ref.getDownloadURL();
-  console.log('url from storage:', url);
-  return url;
-};
 
 // renderInner = () => (
 //   <View style={styles.panel}>

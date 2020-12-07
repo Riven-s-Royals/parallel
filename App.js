@@ -19,7 +19,8 @@ import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { browse } from './foursquare';
 import renderAnnotation from './renderAnnotation';
-import { renderInner, renderHeader, retrieveImage } from './drawer';
+import { renderInner, renderHeader } from './drawer';
+import { retrieveImage } from './storage';
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
@@ -64,11 +65,9 @@ class App extends React.Component {
   getUserLocation() {
     Geolocation.getCurrentPosition(
       (position) => {
-        console.log('getUserLocation position:', position);
         this.setState({
           userCoords: [position.coords.longitude, position.coords.latitude],
         });
-        console.log('this state user', this.state.userCoords);
         this.get4SqVenues();
       },
       (error) => {

@@ -10,7 +10,7 @@ import {
   AppRegistry,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import storage from '@react-native-firebase/storage';
+import { uploadImageToStorage } from './storage';
 
 class Camera extends React.Component {
   constructor() {
@@ -65,17 +65,6 @@ class Camera extends React.Component {
     }
   };
 }
-
-const uploadImageToStorage = (path, imageName) => {
-  let reference = storage().ref(imageName);
-  let task = reference.putFile(path);
-
-  task
-    .then(() => {
-      console.log('Image uploaded to the bucket!');
-    })
-    .catch((e) => console.log('Error uploading image to storage:', e));
-};
 
 const styles = StyleSheet.create({
   container: {
