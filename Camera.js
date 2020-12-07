@@ -67,15 +67,14 @@ class Camera extends React.Component {
 }
 
 const uploadImageToStorage = (path, imageName) => {
-  let reference = storage().ref(imageName); // 2
-  let task = reference.putFile(path); // 3
+  let reference = storage().ref(imageName);
+  let task = reference.putFile(path);
 
   task
     .then(() => {
-      // 4
       console.log('Image uploaded to the bucket!');
     })
-    .catch((e) => console.log('uploading image error => ', e));
+    .catch((e) => console.log('Error uploading image to storage:', e));
 };
 
 const styles = StyleSheet.create({

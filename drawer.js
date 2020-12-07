@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   StyleSheet,
   View,
@@ -6,10 +6,18 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
-} from "react-native";
-import Constants from "expo-constants";
-import { max } from "react-native-reanimated";
-import { List, ListItem } from "react-native-elements";
+} from 'react-native';
+import Constants from 'expo-constants';
+import { max } from 'react-native-reanimated';
+import { List, ListItem } from 'react-native-elements';
+import storage from '@react-native-firebase/storage';
+
+export const retrieveImage = async (img) => {
+  const ref = storage().ref(`/${img}`);
+  const url = await ref.getDownloadURL();
+  console.log('url from storage:', url);
+  return url;
+};
 
 // renderInner = () => (
 //   <View style={styles.panel}>
@@ -46,6 +54,7 @@ import { List, ListItem } from "react-native-elements";
 //   </List> */}
 //   </View>
 // );
+
 export const renderHeader = () => {
   return (
     <View style={styles.header}>
@@ -62,7 +71,7 @@ export const renderInner = (data) => {
       <Text style={styles.panelTitle}>Swipe Up To Explore!</Text>
       <FlatList
         data={data}
-        renderItem={ () => renderItemComponent(data)}
+        renderItem={() => renderItemComponent(data)}
         ItemSeparatorComponent={ItemSeparator}
         keyExtractor={(item) => item.id.toString()}
       />
@@ -71,29 +80,24 @@ export const renderInner = (data) => {
 };
 
 const renderItemComponent = (itemData) => {
-    return (
-  <TouchableOpacity style={styles.container}>
-
-  </TouchableOpacity>
-    )
-}
+  return <TouchableOpacity style={styles.container}></TouchableOpacity>;
+};
 
 const ItemSeparator = () => {
-    return (
+  return (
     <View
       style={{
         height: 2,
-        width: "100%",
-        backgroundColor: "rgba(0,0,0,0.5)",
+        width: '100%',
+        backgroundColor: 'rgba(0,0,0,0.5)',
       }}
     />
-    )
-
-}
+  );
+};
 
 const styles = StyleSheet.create({
   panelContainer: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
@@ -102,39 +106,39 @@ const styles = StyleSheet.create({
   panel: {
     height: 800,
     padding: 20,
-    backgroundColor: "#f7f5eee8",
+    backgroundColor: '#f7f5eee8',
   },
   header: {
-    backgroundColor: "#f7f5eee8",
-    shadowColor: "#000000",
+    backgroundColor: '#f7f5eee8',
+    shadowColor: '#000000',
     paddingTop: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
   panelHeader: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   panelHandle: {
     width: 40,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#00000040",
+    backgroundColor: '#00000040',
     marginBottom: -10,
   },
   panelTitle: {
     fontSize: 20,
     height: 35,
-    textAlign: "center",
+    textAlign: 'center',
   },
   panelSubtitle: {
     fontSize: 14,
-    color: "black",
+    color: 'black',
     height: 30,
     marginTop: 30,
     marginBottom: 10,
   },
   photo: {
-    width: "100%",
+    width: '100%',
     height: 300,
     marginTop: 50,
   },
@@ -143,25 +147,25 @@ const styles = StyleSheet.create({
     marginTop: Constants.statusBarHeight,
   },
   scrollView: {
-    backgroundColor: "pink",
+    backgroundColor: 'pink',
     marginHorizontal: 20,
   },
   scrollText: {
     fontSize: 42,
   },
   image: {
-    height: "100%",
+    height: '100%',
     borderRadius: 4,
   },
   container: {
     height: 300,
     margin: 10,
-    backgroundColor: "#FFF",
+    backgroundColor: '#FFF',
     borderRadius: 6,
     ...Platform.select({
       ios: {
         shadowOffset: { width: 0, height: 2 },
-        shadowColor: "black",
+        shadowColor: 'black',
         shadowOpacity: 0.8,
       },
     }),

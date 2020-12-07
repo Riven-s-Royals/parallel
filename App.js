@@ -19,7 +19,7 @@ import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { browse } from './foursquare';
 import renderAnnotation from './renderAnnotation';
-import { renderInner, renderHeader } from './drawer';
+import { renderInner, renderHeader, retrieveImage } from './drawer';
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
@@ -91,7 +91,9 @@ class App extends React.Component {
       this.getUserLocation();
     }
     await this.getFirestoreLocations();
-    console.log('this.state.locations', this.state.locations);
+    //retrieveImage function test run -> it correctly
+    //pulls image url from storage
+    await retrieveImage(this.state.locations[1].img);
   }
 
   async getFirestoreLocations() {
