@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>FontAwesome.ttf</string>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -41,14 +45,14 @@
 	<string>Parallel requires location services for suggestions</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Parallel requires location services for suggestions</string>
-		<key>NSLocationWhenInUseUsageDescription</key>
+	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Parallel requires location services for suggestions</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Used to take photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-    <string>Parallel would like access to your photo gallery</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Parallel would like to save photos to your photo gallery</string>
+	<string>Parallel would like access to your photo gallery</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Parallel would like to save photos to your photo gallery</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
@@ -70,7 +74,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleDefault</string>
 </dict>
 </plist>

@@ -20,6 +20,9 @@ import BottomSheet from "reanimated-bottom-sheet";
 import { browse } from "./foursquare";
 import renderAnnotation from "./renderAnnotation";
 import { renderInner, renderHeader } from "./drawer";
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
@@ -136,8 +139,11 @@ class App extends React.Component {
             <View
               style={styles.cameraButton}
             >
-              <Button
-                title="Camera"
+              <Icon.Button 
+                name="camera"
+                size={35}
+                color="black"
+                backgroundColor='grey'
                 onPress={() => this.props.navigation.navigate("Camera")}
               />
             </View>
