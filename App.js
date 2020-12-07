@@ -21,6 +21,7 @@ import { browse } from './foursquare';
 import renderAnnotation from './renderAnnotation';
 import { renderInner, renderHeader } from './drawer';
 import { retrieveImage } from './storage';
+import Icon from 'react-native-vector-icons/FontAwesome';
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
@@ -126,19 +127,23 @@ class App extends React.Component {
     const venuesArray = this.state.foursquare;
     return (
       <View style={{ flex: 1, height: '100%', width: '100%' }}>
-        <Button
-          style={{ justifyContent: 'right' }}
-          title="Camera"
-          onPress={() => this.props.navigation.navigate('Camera')}
-        />
         {this.state.userCoords ? (
           <MapboxGL.MapView
             styleURL={MapboxGL.StyleURL.Street}
             zoomLevel={16}
             centerCoordinate={this.state.userCoords}
             showUserLocation={true}
-            style={{ flex: 1 }}
+            style={styles.map}
           >
+            <View style={styles.cameraButton}>
+              <Icon.Button
+                name="camera"
+                size={35}
+                color="black"
+                backgroundColor="grey"
+                onPress={() => this.props.navigation.navigate('Camera')}
+              />
+            </View>
             <MapboxGL.Camera
               zoomLevel={16}
               centerCoordinate={this.state.userCoords}
@@ -172,5 +177,20 @@ class App extends React.Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  map: {
+    flex: 1,
+    zIndex: -1,
+  },
+  cameraButton: {
+    position: 'absolute', //use absolute position to show button on top of the map
+    top: '4%', //for center align
+    alignSelf: 'flex-end', //for align to right
+  },
+});
 
 export default App;
