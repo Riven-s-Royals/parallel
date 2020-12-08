@@ -6,20 +6,17 @@ export const uploadImageToStorage = (path, imageName) => {
   task
     .then(async () => {
       console.log('Image uploaded to the bucket!');
-      console.log('name for retrieval function:', imageName);
       const pathToFile = await reference.getDownloadURL();
-      return pathToFile
+      return pathToFile;
     })
     .catch((e) => console.log('Error uploading image to storage:', e));
 };
 
-export const retrieveImage = async (img) => {
-  try {
-    const ref = await storage().ref(`/${img}`);
-    const url = await ref.getDownloadURL();
-    return url;
-    
-  } catch (error) {
-    console.log(error)
-  }
-};
+//obsolete retrieval function
+
+// export const retrieveImage = async (img) => {
+//   const ref = storage().ref(`/${img}`);
+//   const url = await ref.getDownloadURL();
+//   console.log('url from storage:', url);
+//   return url;
+// };

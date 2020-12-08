@@ -112,5 +112,3 @@ const styles = StyleSheet.create({
     }),
   },
 });
-
-//"https://firebasestorage.googleapis.com/v0/b/parallel-app-capstone.appspot.com/o/brooklynsuperherosupply.jpg?alt=media&token=86595604-3373-4ea2-8ac6-d50fb2484a36"
