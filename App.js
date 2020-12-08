@@ -12,16 +12,26 @@ import {
   LogBox,
   FlatList,
 } from 'react-native';
-import MapboxGL from '@react-native-mapbox-gl/maps';
-import firestore from '@react-native-firebase/firestore';
-import Geolocation from 'react-native-geolocation-service';
-import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import BottomSheet from 'reanimated-bottom-sheet';
-import { browse } from './foursquare';
+
+import MapboxGL from '@react-native-mapbox-gl/maps';
+import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
+import Geolocation from 'react-native-geolocation-service';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-community/google-signin';
+import { onGoogleButtonPress } from './signIn';
+
 import renderAnnotation from './renderAnnotation';
+import { browse } from './foursquare';
 import { renderInner, renderHeader } from './drawer';
 import { retrieveImage } from './storage';
-import Icon from 'react-native-vector-icons/FontAwesome';
+
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
@@ -30,11 +40,12 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      permissionsGranted: null,
+      loading: false,
       userCoords: [],
       locations: [],
-      permissionsGranted: null,
       foursquare: [],
-      loading: false,
+      userInfo: '',
     };
 
     this.getFirestoreLocations = this.getFirestoreLocations.bind(this);
@@ -91,21 +102,25 @@ class App extends React.Component {
       this.getUserLocation();
     }
     await this.getFirestoreLocations();
-    //retrieveImage function test run -> it correctly
-    //pulls image url from storage
-    await retrieveImage(this.state.locations[1].img);
   }
 
   async getFirestoreLocations() {
     const snapshot = await firestore().collection('locations').get();
     return snapshot.docs.map((doc) => {
       let docObj = doc.data();
-      this.setState((prevState) => {
-        return {
-          ...prevState,
-          locations: [...prevState.locations, docObj],
-        };
-      });
+      if (
+        this.state.userCoords[1] - docObj.coordinates.latitude > -0.1 &&
+        this.state.userCoords[1] - docObj.coordinates.latitude < 0.1 &&
+        this.state.userCoords[0] - docObj.coordinates.longitude > -0.1 &&
+        this.state.userCoords[0] - docObj.coordinates.longitude < 0.1
+      ) {
+        this.setState((prevState) => {
+          return {
+            ...prevState,
+            locations: [...prevState.locations, docObj],
+          };
+        });
+      }
     });
   }
 
@@ -144,6 +159,19 @@ class App extends React.Component {
                 onPress={() => this.props.navigation.navigate('Camera')}
               />
             </View>
+            <View style={styles.userButton}>
+              <Icon.Button
+                name="user"
+                size={35}
+                color="dimgray"
+                backgroundColor="#f7f5eee8"
+                onPress={() =>
+                  onGoogleButtonPress().then(() =>
+                    console.log('Signed in with Google!')
+                  )
+                }
+              />
+            </View>
             <MapboxGL.Camera
               zoomLevel={16}
               centerCoordinate={this.state.userCoords}
@@ -166,6 +194,7 @@ class App extends React.Component {
         ) : (
           <Text>Loading...</Text>
         )}
+
         <BottomSheet
           ref={this.myRef}
           snapPoints={[800, 125]}
@@ -189,6 +218,11 @@ const styles = StyleSheet.create({
   cameraButton: {
     position: 'absolute', //use absolute position to show button on top of the map
     top: '4%', //for center align
+    alignSelf: 'flex-end', //for align to right
+  },
+  userButton: {
+    position: 'absolute', //use absolute position to show button on top of the map
+    top: '12%', //for center align
     alignSelf: 'flex-end', //for align to right
   },
 });
