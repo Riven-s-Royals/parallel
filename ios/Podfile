@@ -14,6 +14,8 @@ target 'parallel' do
   pod 'Firebase/Analytics'
   pod 'Firebase/Firestore'
   pod 'Firebase/Storage'
+  # pod 'Firebase/MLVision'
+  # pod 'Firebase/MLVisionTextModel'
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
