@@ -1,16 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   View,
-  Image,
   Platform,
   Text,
-  TouchableOpacity,
-  AppRegistry,
-  Button,
-  ScrollView,
-  LogBox,
-  FlatList,
+  LogBox
 } from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import firestore from '@react-native-firebase/firestore';
@@ -20,8 +14,8 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import { browse } from './foursquare';
 import renderAnnotation from './renderAnnotation';
 import { renderInner, renderHeader } from './drawer';
-import { retrieveImage } from './storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
+
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 MapboxGL.setAccessToken(MAPBOXGL_ACCESS_TOKEN);
@@ -91,10 +85,10 @@ class App extends React.Component {
       this.getUserLocation();
     }
     await this.getFirestoreLocations();
-    //retrieveImage function test run -> it correctly
-    //pulls image url from storage
-    await retrieveImage(this.state.locations[1].img);
+   
+  
   }
+
 
   async getFirestoreLocations() {
     const snapshot = await firestore().collection('locations').get();
@@ -126,7 +120,7 @@ class App extends React.Component {
   render() {
     const venuesArray = this.state.foursquare;
     return (
-      <View style={{ flex: 1, height: '100%', width: '100%' }}>
+      <View style={styles.container}>
         {this.state.userCoords ? (
           <MapboxGL.MapView
             styleURL={MapboxGL.StyleURL.Street}
@@ -137,7 +131,7 @@ class App extends React.Component {
           >
             <View style={styles.cameraButton}>
               <Icon.Button
-                name="camera"
+                name="camera-retro"
                 size={35}
                 color="black"
                 backgroundColor="grey"
@@ -170,7 +164,7 @@ class App extends React.Component {
           ref={this.myRef}
           snapPoints={[800, 125]}
           renderHeader={renderHeader}
-          renderContent={() => renderInner(this.state.foursquare)}
+          renderContent={() => renderInner(this.state.locations)}
           initialSnap={1}
         />
       </View>
@@ -181,15 +175,17 @@ class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height: '100%',
+    width: '100%'
   },
   map: {
     flex: 1,
     zIndex: -1,
   },
   cameraButton: {
-    position: 'absolute', //use absolute position to show button on top of the map
-    top: '4%', //for center align
-    alignSelf: 'flex-end', //for align to right
+    position: 'absolute',
+    top: '4%',
+    alignSelf: 'flex-end',
   },
 });
 
