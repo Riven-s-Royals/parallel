@@ -24,7 +24,6 @@ import { onGoogleButtonPress } from './signIn';
 import renderAnnotation from './renderAnnotation';
 import { browse } from './foursquare';
 import { renderInner, renderHeader } from './drawer';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
