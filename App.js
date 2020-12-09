@@ -1,17 +1,29 @@
-import React from 'react';
-import { StyleSheet, View, Platform, Text, LogBox } from 'react-native';
+
+import React, { useEffect, useRef } from 'react';
+import {
+  StyleSheet,
+  View,
+  Image,
+  Platform,
+  Text,
+  TouchableOpacity,
+  AppRegistry,
+  Button,
+  ScrollView,
+  LogBox,
+  FlatList,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import BottomSheet from 'reanimated-bottom-sheet';
-
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
+import { browse } from './foursquare';
+import renderAnnotation from './renderAnnotation';
+import { renderInner, renderHeader } from './drawer';
+import { retrieveImage } from './storage';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
 import { onGoogleButtonPress } from './signIn';
-
-import renderAnnotation from './renderAnnotation';
-import { browse } from './foursquare';
-import { renderInner, renderHeader } from './drawer';
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -115,7 +127,6 @@ class App extends React.Component {
   // async get4SqVenues() {
   //   const userCoordinates = this.state.userCoords;
   //   const venuesArray = await browse(userCoordinates);
-
   //   this.setState((prevState) => {
   //     return {
   //       ...prevState,
@@ -124,11 +135,18 @@ class App extends React.Component {
   //   });
   // }
 
+
   myRef = React.createRef();
 
   render() {
     return (
-      <View style={styles.container}>
+        <View style={styles.container}>
+        <Button
+          style={{ justifyContent: 'right' }}
+          title="Camera"
+          onPress={() => this.props.navigation.navigate('Camera')}
+        />
+
         {this.state.userCoords ? (
           <MapboxGL.MapView
             styleURL={MapboxGL.StyleURL.Street}

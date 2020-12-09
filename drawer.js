@@ -19,6 +19,7 @@ export const renderHeader = () => {
   );
 };
 
+
 export const renderInner = (allPointsArray) => {
   return (
     <View style={styles.panel}>
