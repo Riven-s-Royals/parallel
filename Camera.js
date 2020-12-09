@@ -19,28 +19,25 @@ import {Fields} from './LandmarkForm'
 import {LoadingCarousel} from './Carousel'
 
 const FadeInView = (props) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current  // Initial value for opacity: 0
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
   React.useEffect(() => {
-    Animated.timing(
-      fadeAnim,
-      {
-        toValue: 1,
-        duration: 1500,
-        useNativeDriver: true
-      }
-    ).start();
-  }, [fadeAnim])
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1500,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
   return (
-    <Animated.View                 // Special animatable View
+    <Animated.View // Special animatable View
       style={{
         ...props.style,
-        opacity: fadeAnim,         // Bind opacity to animated value
+        opacity: fadeAnim, // Bind opacity to animated value
       }}
     >
       {props.children}
     </Animated.View>
   );
-}
+};
 
 class Camera extends React.Component {
   constructor() {
@@ -48,12 +45,40 @@ class Camera extends React.Component {
     this.state = {
       imageUri: '',
       isVisible: false,
-      modalVisible: false
+      modalVisible: false,
     };
     this.takePicture = this.takePicture.bind(this);
   }
 
-  render() {
+  landmarkAlert (locations) {
+    Alert.alert(`Landmark: ${locations[0].landmark}`)
+  }
+
+  takePicture = async () => {
+    try {
+      if (this.camera) {
+        this.setState({ isVisible: true })
+        const options = { quality: 0.5, base64: true };
+        const data = await this.camera.takePictureAsync(options);
+        console.log(data.uri);
+        this.setState({ imageUri: data.uri });
+        setTimeout(()=>this.setState({isVisible: false}),5000)
+        // const landmarks = await processLandmarks(data.uri)
+        // const landmarks = await processLandmarks('/Users/jamesgill/Downloads/bean_dawn_5d5624c9-38bc-42c6-a0bc-3b84be7dca9b.jpg')
+        // console.log(landmarks)
+        const landmarks = [];
+        if (landmarks.length > 0) {
+          this.landmarkAlert(landmarks)
+        } else {
+          this.setState({modalVisible: true})
+        }
+      }
+    } catch (error) {
+        console.error(error);
+    }
+  };
+  
+render() {
     const { modalVisible } = this.state;
     if(modalVisible)
     return (
@@ -70,8 +95,7 @@ class Camera extends React.Component {
             <View style={styles.modalView}>
               <Text style={styles.modalText}>Enter Landmark Information Here</Text>
               <Fields navigation={this.props.navigation} image={this.state.imageUri} />
-
-              {/* <TouchableHighlight
+                {/* <TouchableHighlight
                 style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
                 onPress={() => {
                   this.setState({modalVisible: !modalVisible});
@@ -79,22 +103,22 @@ class Camera extends React.Component {
               >
                 <Text style={styles.textStyle}>Hide Modal</Text>
               </TouchableHighlight> */}
+              </View>
             </View>
-          </View>
-        </Modal>
+          </Modal>
 
-        <TouchableHighlight
-          style={styles.openButton}
-          onPress={() => {
-            this.setModalVisible(true);
-          }}
-        >
-          <Text style={styles.textStyle}>Show Modal</Text>
-        </TouchableHighlight>
-      </View>
-    );
-    if (this.state.isVisible) 
-    return (
+          <TouchableHighlight
+            style={styles.openButton}
+            onPress={() => {
+              this.setModalVisible(true);
+            }}
+          >
+            <Text style={styles.textStyle}>Show Modal</Text>
+          </TouchableHighlight>
+        </View>
+      );
+    if (this.state.isVisible)
+      return (
         <FadeInView style={styles.loading}>
           <LoadingCarousel />
           <Image resizeMode='contain' style={styles.logo} source={require('./assets/parallel_mock_logo2.png')}/>
@@ -126,37 +150,9 @@ class Camera extends React.Component {
       </View>
     );
   }
-
-  landmarkAlert (locations) {
-    Alert.alert(`Landmark: ${locations[0].landmark}`)
-  }
-
-  takePicture = async () => {
-    try {
-      if (this.camera) {
-        this.setState({ isVisible: true })
-        const options = { quality: 0.5, base64: true };
-        const data = await this.camera.takePictureAsync(options);
-        console.log(data.uri);
-        this.setState({ imageUri: data.uri });
-        setTimeout(()=>this.setState({isVisible: false}),5000)
-        // const landmarks = await processLandmarks(data.uri)
-        // const landmarks = await processLandmarks('/Users/jamesgill/Downloads/bean_dawn_5d5624c9-38bc-42c6-a0bc-3b84be7dca9b.jpg')
-        // console.log(landmarks)
-        const landmarks = [];
-        if (landmarks.length > 0) {
-          this.landmarkAlert(landmarks)
-        } else {
-          this.setState({modalVisible: true})
-        }
-      }
-    } catch (error) {
-        console.error(error);
-    }
-  };
 }
 
-async function processLandmarks (localPath) {
+async function processLandmarks(localPath) {
   const landmarks = await ml().cloudLandmarkRecognizerProcessImage(localPath);
   // landmarks.forEach(landmark => {
   //   console.log('Landmark name: ', landmark.landmark);
@@ -164,7 +160,7 @@ async function processLandmarks (localPath) {
   // //   console.log('Confidence score: ', block.confidence);
   // });
   // console.log('LANDMARKS INSIDE FUNCTION', landmarks)
-  return landmarks
+  return landmarks;
 }
 
 const styles = StyleSheet.create({
@@ -189,39 +185,39 @@ const styles = StyleSheet.create({
   },
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
   },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 20,
     padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5
+    elevation: 5,
   },
   openButton: {
-    backgroundColor: "#F194FF",
+    backgroundColor: '#F194FF',
     borderRadius: 20,
     padding: 10,
-    elevation: 2
+    elevation: 2,
   },
   textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   modalText: {
     marginBottom: 15,
-    textAlign: "center"
+    textAlign: 'center',
   },
   loading: {
     flex: 1,
@@ -230,9 +226,9 @@ const styles = StyleSheet.create({
   logo: {
     flex: 1,
     alignSelf: 'center',
-    height: 350, 
-    width: 350
-  }
+    height: 350,
+    width: 350,
+  },
 });
 
 export default Camera;
