@@ -1,5 +1,4 @@
-
-import React from "react";
+import React from 'react';
 import {
   StyleSheet,
   View,
@@ -8,16 +7,16 @@ import {
   LogBox,
   Modal,
   TouchableHighlight,
-} from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
-import BottomSheet from "reanimated-bottom-sheet";
-import MapboxGL from "@react-native-mapbox-gl/maps";
-import { MAPBOXGL_ACCESS_TOKEN } from "./secrets";
-import RenderAnnotation from "./renderAnnotation";
-import { renderInner, renderHeader } from "./drawer";
-import Geolocation from "react-native-geolocation-service";
-import firestore from "@react-native-firebase/firestore";
-import { onGoogleButtonPress } from "./signIn";
+} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import BottomSheet from 'reanimated-bottom-sheet';
+import MapboxGL from '@react-native-mapbox-gl/maps';
+import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
+import RenderAnnotation from './renderAnnotation';
+import { renderInner, renderHeader } from './drawer';
+import Geolocation from 'react-native-geolocation-service';
+import firestore from '@react-native-firebase/firestore';
+import { onGoogleButtonPress, getCurrentUserInfo } from './signIn';
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -37,7 +36,6 @@ class App extends React.Component {
       email: null,
       favorites: [],
       favoriteClick: false,
-
     };
     this.requestPermission = this.requestPermission.bind(this);
     this.getUserLocation = this.getUserLocation.bind(this);
@@ -50,12 +48,12 @@ class App extends React.Component {
 
   async componentDidMount() {
     //requests user permission for location
-    if (Platform.OS === "ios") {
-      Geolocation.requestAuthorization("whenInUse").then((res) => {
-        console.log("authorization result:", res);
+    if (Platform.OS === 'ios') {
+      Geolocation.requestAuthorization('whenInUse').then((res) => {
+        console.log('authorization result:', res);
       });
     }
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       this.requestPermission();
     } else {
       this.getUserLocation();
@@ -82,10 +80,10 @@ class App extends React.Component {
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
       ]).then((result) => {
-        console.log("result", result);
+        console.log('result', result);
         if (
-          result["android.permission.ACCESS_COARSE_LOCATION"] &&
-          result["android.permission.ACCESS_FINE_LOCATION"] === "granted"
+          result['android.permission.ACCESS_COARSE_LOCATION'] &&
+          result['android.permission.ACCESS_FINE_LOCATION'] === 'granted'
         ) {
           this.getUserLocation();
           this.setState({
@@ -94,7 +92,7 @@ class App extends React.Component {
         }
       });
     } catch (err) {
-      console.warn("err", err);
+      console.warn('err', err);
     }
   }
 
@@ -108,7 +106,7 @@ class App extends React.Component {
       },
       (error) => {
         // See error code charts below.
-        console.log("getUserLocation error:", error.code, error.message);
+        console.log('getUserLocation error:', error.code, error.message);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
@@ -116,8 +114,9 @@ class App extends React.Component {
 
   async getFirestoreLocations() {
     //pulls crowsourced location submissions from firestore
-    const snapshot = await firestore().collection("locations").get();
-    return snapshot.docs.map((doc) => {
+    let placesArray = [];
+    const snapshot = await firestore().collection('locations').get();
+    snapshot.docs.map((doc) => {
       let docObj = doc.data();
       if (
         //narrows geographic range of what is rendered
@@ -127,13 +126,14 @@ class App extends React.Component {
         this.state.userCoords[0] - docObj.coordinates.longitude > -0.1 &&
         this.state.userCoords[0] - docObj.coordinates.longitude < 0.1
       ) {
-        this.setState((prevState) => {
-          return {
-            ...prevState,
-            locations: [...prevState.locations, docObj],
-          };
-        });
+        placesArray.push(docObj);
       }
+    });
+    this.setState((prevState) => {
+      return {
+        ...prevState,
+        locations: placesArray,
+      };
     });
   }
 
@@ -207,17 +207,17 @@ class App extends React.Component {
               <Icon.Button
                 name="camera-retro"
                 size={30}
-                color="black"
-                backgroundColor="grey"
-                onPress={() => this.props.navigation.navigate("Camera")}
+                color="dimgrey"
+                backgroundColor="#FFFFFF"
+                onPress={() => this.props.navigation.navigate('Camera')}
               />
             </View>
             <View style={styles.userButton}>
               <Icon.Button
                 name="user"
                 size={39}
-                color="black"
-                backgroundColor="grey"
+                color="dimgrey"
+                backgroundColor="#FFFFFF"
                 onPress={this.handleSignIn}
               />
             </View>
@@ -226,9 +226,9 @@ class App extends React.Component {
                 <Icon.Button
                   name="heart"
                   size={30}
-                  color="black"
+                  color="dimgrey"
                   backgroundColor={
-                    this.state.favoriteClick ? 'darkgrey' : 'grey'
+                    this.state.favoriteClick ? 'silver' : '#FFFFFF'
                   }
                   onPress={() =>
                     this.setState({ favoriteClick: !this.state.favoriteClick })
@@ -241,23 +241,24 @@ class App extends React.Component {
               centerCoordinate={this.state.userCoords}
             ></MapboxGL.Camera>
             <RenderAnnotation
-              source={"user"}
+              source={'user'}
               coordinates={this.state.userCoords}
               setModal={this.setModalVisible}
             />
-            {
-              this.state.locations.map((location, idx) => {
-                return  (
+            {this.state.locations.map((location, idx) => {
+              return (
                 <RenderAnnotation
-                  source={"firestore"}
+                  key={idx}
+                  source={'firestore'}
                   coordinates={[
                     location.coordinates.longitude,
                     location.coordinates.latitude,
                   ]}
                   idx={idx}
                   setModal={this.setModalVisible}
-                />)
-              })}
+                />
+              );
+            })}
             {/* {
               this.state.foursquare.map((venue, idx) => {
                 const { lat, lng } = venue.location;
@@ -270,7 +271,7 @@ class App extends React.Component {
                 transparent={true}
                 visible={this.state.modalVisible}
                 onRequestClose={() => {
-                  Alert.alert("Modal has been closed.");
+                  Alert.alert('Modal has been closed.');
                 }}
               >
                 <View style={styles.centeredView}>
@@ -280,7 +281,7 @@ class App extends React.Component {
                     <TouchableHighlight
                       style={{
                         ...styles.openButton,
-                        backgroundColor: "grey",
+                        backgroundColor: 'grey',
                       }}
                       onPress={() => {
                         this.setModalVisible(!this.state.modalVisible);
@@ -332,36 +333,41 @@ class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: "100%",
-    width: "100%",
+    height: '100%',
+    width: '100%',
   },
   map: {
     flex: 1,
     zIndex: -1,
   },
   cameraButton: {
-    position: "absolute",
-    top: "4%",
-    alignSelf: "flex-end",
+    position: 'absolute',
+    top: '4%',
+    alignSelf: 'flex-end',
   },
   userButton: {
-    position: "absolute",
-    top: "12%",
-    alignSelf: "flex-end",
+    position: 'absolute',
+    top: '12%',
+    alignSelf: 'flex-end',
+  },
+  heartButton: {
+    position: 'absolute',
+    top: '20%',
+    alignSelf: 'flex-end',
   },
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 22,
   },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 20,
     padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -369,12 +375,7 @@ const styles = StyleSheet.create({
   },
   modalText: {
     marginBottom: 15,
-    textAlign: "center",
-  },
-  heartButton: {
-    position: 'absolute',
-    top: '20%',
-    alignSelf: 'flex-end',
+    textAlign: 'center',
   },
 });
 
