@@ -1,27 +1,23 @@
-import React, { useEffect, useRef } from 'react';
+
+import React from "react";
 import {
   StyleSheet,
   View,
-  Image,
   Platform,
   Text,
-  TouchableOpacity,
-  AppRegistry,
-  Button,
-  ScrollView,
   LogBox,
-  FlatList,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import BottomSheet from 'reanimated-bottom-sheet';
-import MapboxGL from '@react-native-mapbox-gl/maps';
-import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
-import { browse } from './foursquare';
-import renderAnnotation from './renderAnnotation';
-import { renderInner, renderHeader } from './drawer';
-import Geolocation from 'react-native-geolocation-service';
-import firestore from '@react-native-firebase/firestore';
-import { signIn, getCurrentUserInfo } from './signIn';
+  Modal,
+  TouchableHighlight,
+} from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
+import BottomSheet from "reanimated-bottom-sheet";
+import MapboxGL from "@react-native-mapbox-gl/maps";
+import { MAPBOXGL_ACCESS_TOKEN } from "./secrets";
+import RenderAnnotation from "./renderAnnotation";
+import { renderInner, renderHeader } from "./drawer";
+import Geolocation from "react-native-geolocation-service";
+import firestore from "@react-native-firebase/firestore";
+import { onGoogleButtonPress } from "./signIn";
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -35,11 +31,13 @@ class App extends React.Component {
       loading: false,
       userCoords: [],
       locations: [],
+      modalVisible: false,
       // foursquare: [],
       userInfo: '',
       email: null,
       favorites: [],
       favoriteClick: false,
+
     };
     this.requestPermission = this.requestPermission.bind(this);
     this.getUserLocation = this.getUserLocation.bind(this);
@@ -47,16 +45,17 @@ class App extends React.Component {
     this.handleSignIn = this.handleSignIn.bind(this);
     this.getUserFavorites = this.getUserFavorites.bind(this);
     // this.get4SqVenues = this.get4SqVenues.bind(this);
+    this.setModalVisible = this.setModalVisible.bind(this);
   }
 
   async componentDidMount() {
     //requests user permission for location
-    if (Platform.OS === 'ios') {
-      Geolocation.requestAuthorization('whenInUse').then((res) => {
-        console.log('authorization result:', res);
+    if (Platform.OS === "ios") {
+      Geolocation.requestAuthorization("whenInUse").then((res) => {
+        console.log("authorization result:", res);
       });
     }
-    if (Platform.OS === 'android') {
+    if (Platform.OS === "android") {
       this.requestPermission();
     } else {
       this.getUserLocation();
@@ -83,10 +82,10 @@ class App extends React.Component {
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
       ]).then((result) => {
-        console.log('result', result);
+        console.log("result", result);
         if (
-          result['android.permission.ACCESS_COARSE_LOCATION'] &&
-          result['android.permission.ACCESS_FINE_LOCATION'] === 'granted'
+          result["android.permission.ACCESS_COARSE_LOCATION"] &&
+          result["android.permission.ACCESS_FINE_LOCATION"] === "granted"
         ) {
           this.getUserLocation();
           this.setState({
@@ -95,7 +94,7 @@ class App extends React.Component {
         }
       });
     } catch (err) {
-      console.warn('err', err);
+      console.warn("err", err);
     }
   }
 
@@ -109,7 +108,7 @@ class App extends React.Component {
       },
       (error) => {
         // See error code charts below.
-        console.log('getUserLocation error:', error.code, error.message);
+        console.log("getUserLocation error:", error.code, error.message);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
@@ -117,7 +116,7 @@ class App extends React.Component {
 
   async getFirestoreLocations() {
     //pulls crowsourced location submissions from firestore
-    const snapshot = await firestore().collection('locations').get();
+    const snapshot = await firestore().collection("locations").get();
     return snapshot.docs.map((doc) => {
       let docObj = doc.data();
       if (
@@ -187,6 +186,10 @@ class App extends React.Component {
   //   });
   // }
 
+  setModalVisible = (visible) => {
+    this.setState({ modalVisible: visible });
+  };
+
   myRef = React.createRef();
 
   render() {
@@ -203,18 +206,18 @@ class App extends React.Component {
             <View style={styles.cameraButton}>
               <Icon.Button
                 name="camera-retro"
-                size={35}
-                color="dimgray"
-                backgroundColor="#f7f5eee8"
-                onPress={() => this.props.navigation.navigate('Camera')}
+                size={30}
+                color="black"
+                backgroundColor="grey"
+                onPress={() => this.props.navigation.navigate("Camera")}
               />
             </View>
             <View style={styles.userButton}>
               <Icon.Button
                 name="user"
-                size={35}
-                color="dimgray"
-                backgroundColor="#f7f5eee8"
+                size={39}
+                color="black"
+                backgroundColor="grey"
                 onPress={this.handleSignIn}
               />
             </View>
@@ -222,10 +225,10 @@ class App extends React.Component {
               <View style={styles.heartButton}>
                 <Icon.Button
                   name="heart"
-                  size={35}
-                  color="dimgray"
+                  size={30}
+                  color="black"
                   backgroundColor={
-                    this.state.favoriteClick ? 'silver' : '#f7f5eee8'
+                    this.state.favoriteClick ? 'darkgrey' : 'grey'
                   }
                   onPress={() =>
                     this.setState({ favoriteClick: !this.state.favoriteClick })
@@ -237,18 +240,58 @@ class App extends React.Component {
               zoomLevel={16}
               centerCoordinate={this.state.userCoords}
             ></MapboxGL.Camera>
-            {renderAnnotation('user', this.state.userCoords)}
-            {this.state.locations &&
+            <RenderAnnotation
+              source={"user"}
+              coordinates={this.state.userCoords}
+              setModal={this.setModalVisible}
+            />
+            {
               this.state.locations.map((location, idx) => {
-                return renderAnnotation(
-                  'firestore',
-                  [
+                return  (
+                <RenderAnnotation
+                  source={"firestore"}
+                  coordinates={[
                     location.coordinates.longitude,
                     location.coordinates.latitude,
-                  ],
-                  idx
-                );
+                  ]}
+                  idx={idx}
+                  setModal={this.setModalVisible}
+                />)
               })}
+            {/* {
+              this.state.foursquare.map((venue, idx) => {
+                const { lat, lng } = venue.location;
+                return renderAnnotation('foursquare', [lng, lat], idx);
+              })
+            } */}
+            <View style={styles.centeredView}>
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={this.state.modalVisible}
+                onRequestClose={() => {
+                  Alert.alert("Modal has been closed.");
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Text style={styles.modalText}>Hello World!</Text>
+
+                    <TouchableHighlight
+                      style={{
+                        ...styles.openButton,
+                        backgroundColor: "grey",
+                      }}
+                      onPress={() => {
+                        this.setModalVisible(!this.state.modalVisible);
+                      }}
+                    >
+                      <Text style={styles.textStyle}>Hide Modal</Text>
+                    </TouchableHighlight>
+                  </View>
+                </View>
+              </Modal>
+            </View>
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
@@ -289,22 +332,44 @@ class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: '100%',
-    width: '100%',
+    height: "100%",
+    width: "100%",
   },
   map: {
     flex: 1,
     zIndex: -1,
   },
   cameraButton: {
-    position: 'absolute',
-    top: '4%',
-    alignSelf: 'flex-end',
+    position: "absolute",
+    top: "4%",
+    alignSelf: "flex-end",
   },
   userButton: {
-    position: 'absolute',
-    top: '12%',
-    alignSelf: 'flex-end',
+    position: "absolute",
+    top: "12%",
+    alignSelf: "flex-end",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
   },
   heartButton: {
     position: 'absolute',
@@ -314,32 +379,3 @@ const styles = StyleSheet.create({
 });
 
 export default App;
-
-/* const ref = {
-  "_documentPath": {
-    "_parts": ["locations", "portal down to old new york"]},
-  "_firestore": {
-    "_app": {
-      "_automaticDataCollectionEnabled": true, "_deleteApp": [Function "bound deleteApp"], "_deleted": false,
-      "_initialized": true,
-      "_name": "[DEFAULT]",
-      "_nativeInitialized": true,
-      "_options": [Object]},
-    "_config": {
-      "ModuleClass": [Function "FirebaseFirestoreModule"],
-      "hasCustomUrlOrRegionSupport": false, "hasMultiAppSupport": true,
-      "namespace": "firestore",
-      "nativeEvents": [Array],
-      "nativeModuleName": [Array],
-      "statics": [Object],
-      "version": "10.1.1"},
-    "_customUrlOrRegion": undefined,
-    "_nativeModule": {
-        "RNFBFirestoreCollectionModule": true, "RNFBFirestoreDocumentModule": true, "RNFBFirestoreModule": true, "RNFBFirestoreTransactionModule": true, "clearPersistence": [Function "anonymous"], "collectionGet": [Function "anonymous"], "collectionOffSnapshot": [Function "anonymous"], "collectionOnSnapshot": [Function "anonymous"], "disableNetwork": [Function "anonymous"], "documentBatch": [Function "anonymous"], "documentDelete": [Function "anonymous"], "documentGet": [Function "anonymous"], "documentOffSnapshot": [Function "anonymous"], "documentOnSnapshot": [Function "anonymous"], "documentSet": [Function "anonymous"], "documentUpdate": [Function "anonymous"], "enableNetwork": [Function "anonymous"], "getConstants": [Function "anonymous"], "setLogLevel": [Function "anonymous"], "settings": [Function "anonymous"],
-        "terminate": [Function "anonymous"], "transactionApplyBuffer": [Function "anonymous"], "transactionBegin": [Function "anonymous"], "transactionDispose": [Function "anonymous"], "transactionGetDocument": [Function "anonymous"], "waitForPendingWrites": [Function "anonymous"]},
-      "_referencePath": {
-        "_parts": [Array]
-      },
-        "_transactionHandler": {
-          "_firestore": ["Circular"],
-          "_pending": [Object]}}} */
