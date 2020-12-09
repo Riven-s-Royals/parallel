@@ -1,14 +1,5 @@
-import { NavigationContext } from '@react-navigation/native';
 import React from 'react';
-import {
-  StyleSheet,
-  View,
-  Image,
-  Platform,
-  Text,
-  TouchableOpacity,
-  AppRegistry,
-} from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { uploadImageToStorage } from './storage';
 
@@ -18,7 +9,26 @@ class Camera extends React.Component {
     this.state = {
       imageUri: '',
     };
+    this.takePicture = this.takePicture.bind(this);
   }
+
+  takePicture = async () => {
+    try {
+      if (this.camera) {
+        const options = { quality: 0.5, base64: true };
+        const data = await this.camera.takePictureAsync(options);
+        console.log(data.uri);
+        this.setState({ imageUri: data.uri });
+        uploadImageToStorage(
+          this.state.imageUri,
+          'location' + '-' + Date.now() + '.jpg'
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -47,23 +57,6 @@ class Camera extends React.Component {
       </View>
     );
   }
-
-  takePicture = async () => {
-    try {
-      if (this.camera) {
-        const options = { quality: 0.5, base64: true };
-        const data = await this.camera.takePictureAsync(options);
-        console.log(data.uri);
-        this.setState({ imageUri: data.uri });
-        uploadImageToStorage(
-          this.state.imageUri,
-          'location' + '-' + Date.now() + '.jpg'
-        );
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
 }
 
 const styles = StyleSheet.create({
