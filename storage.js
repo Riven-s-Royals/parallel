@@ -3,11 +3,11 @@ import storage from '@react-native-firebase/storage';
 export const uploadImageToStorage = async (path, imageName) => {
   try {
     let reference = storage().ref(imageName);
-    reference.putFile(path);
+    await reference.putFile(path);
     let pathToImage = await reference.getDownloadURL();
     return pathToImage;
   } catch (error) {
-    console.log('Error uploading image to storage:', e);
+    console.log('Error uploading image to storage:', error);
   }
 };
 

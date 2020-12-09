@@ -49,7 +49,6 @@ export class Fields extends React.Component {
     console.log(description)
     const imgName = 'location' + '-' + Date.now() + '.jpg'
     const imagePath = await uploadImageToStorage(image, imgName);
-    console.log('IMAGE PATH!!!!',imagePath)
     const lowerCaseName = name.toLowerCase()
     await firestore() 
     .collection('locations')
@@ -61,8 +60,11 @@ export class Fields extends React.Component {
       name: name,
     })
     .then(() => {
-      console.log('Landmark added!');
-    });
+      this.props.navigation.navigate('Parallel')
+      //  console.log('PROPS', this.props);
+      // console.log('Landmark added!');
+    })
+  
   }
 
   render () {

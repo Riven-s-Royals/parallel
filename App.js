@@ -123,31 +123,13 @@ class App extends React.Component {
       }
     });
   }
-
-  // async get4SqVenues() {
-  //   const userCoordinates = this.state.userCoords;
-  //   const venuesArray = await browse(userCoordinates);
-  //   this.setState((prevState) => {
-  //     return {
-  //       ...prevState,
-  //       foursquare: venuesArray,
-  //     };
-  //   });
-  // }
-
-
+  
   myRef = React.createRef();
 
   render() {
     return (
         <View style={styles.container}>
-        <Button
-          style={{ justifyContent: 'right' }}
-          title="Camera"
-          onPress={() => this.props.navigation.navigate('Camera')}
-        />
-
-        {this.state.userCoords ? (
+          {this.state.userCoords ? (
           <MapboxGL.MapView
             styleURL={MapboxGL.StyleURL.Street}
             zoomLevel={16}

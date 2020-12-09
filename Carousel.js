@@ -28,17 +28,17 @@ export class LoadingCarousel extends React.Component {
           {
               title:"Colosseum",
               text: "Rome, Italy",
-              img: '/Users/jamesgill/Documents/Fullstack/Senior_Phase/Capstone/parallel/assets/coliseum_slide500px.jpg'
+              img: 'https://i.ibb.co/RcJbqh6/coliseum-slide500px.jpg'
           },
           {
               title:"Eiffel Tower",
               text: "Paris, France",
-              img: '/Users/jamesgill/Documents/Fullstack/Senior_Phase/Capstone/parallel/assets/eiffel_tower_slide500px.jpg'
+              img: 'https://i.ibb.co/HHXnpQP/eiffel-tower-slide500px.jpg'
           },
           {
               title:"Taj Mahal",
               text: "Angra, India",
-              img: '/Users/jamesgill/Documents/Fullstack/Senior_Phase/Capstone/parallel/assets/taj_mahal_slide500px.jpg'
+              img: 'https://i.ibb.co/H294z07/taj-mahal-slide500px.jpg'
           },
         ]
       }

@@ -1,5 +1,3 @@
-
-import { NavigationContext } from '@react-navigation/native';
 import React, { useRef, useEffect, useState } from 'react';
 import {
   StyleSheet,
@@ -16,13 +14,9 @@ import {
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { uploadImageToStorage } from './storage';
-import { utils } from '@react-native-firebase/app';
 import ml from '@react-native-firebase/ml';
-import Spinner from 'react-native-spinkit';
-import { set } from 'react-native-reanimated';
 import {Fields} from './LandmarkForm'
 import {LoadingCarousel} from './Carousel'
-import PulseLoader from 'react-native-pulse-loader';
 
 const FadeInView = (props) => {
   const fadeAnim = useRef(new Animated.Value(0)).current  // Initial value for opacity: 0
@@ -59,23 +53,6 @@ class Camera extends React.Component {
     this.takePicture = this.takePicture.bind(this);
   }
 
-  takePicture = async () => {
-    try {
-      if (this.camera) {
-        const options = { quality: 0.5, base64: true };
-        const data = await this.camera.takePictureAsync(options);
-        console.log(data.uri);
-        this.setState({ imageUri: data.uri });
-        uploadImageToStorage(
-          this.state.imageUri,
-          'location' + '-' + Date.now() + '.jpg'
-        );
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   render() {
     const { modalVisible } = this.state;
     if(modalVisible)
@@ -92,7 +69,7 @@ class Camera extends React.Component {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Text style={styles.modalText}>Enter Landmark Information Here</Text>
-              <Fields image={this.state.imageUri} />
+              <Fields navigation={this.props.navigation} image={this.state.imageUri} />
 
               {/* <TouchableHighlight
                 style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
@@ -119,10 +96,8 @@ class Camera extends React.Component {
     if (this.state.isVisible) 
     return (
         <FadeInView style={styles.loading}>
-          {/* <Spinner style={styles.spinner} isVisible={this.state.isVisible} size={175} type={'Arc'} color={'#ffffff'}/> */}
           <LoadingCarousel />
-          <PulseLoader avatar={'/Users/jamesgill/Documents/Fullstack/Senior_Phase/Capstone/parallel/assets/parallel_mock_logo_circle.png'} borderColor={'#ffffff'}	backgroundColor={'#ffffff'}/>
-          {/* <Image resizeMode='contain' style={styles.logo} source={require('./assets/parallel_mock_logo2.png')}/> */}
+          <Image resizeMode='contain' style={styles.logo} source={require('./assets/parallel_mock_logo2.png')}/>
         </FadeInView>)
     return (
       <View style={styles.container}>
@@ -153,7 +128,6 @@ class Camera extends React.Component {
   }
 
   landmarkAlert (locations) {
-    // console.log('THIS IS LOCATIONS',locations)
     Alert.alert(`Landmark: ${locations[0].landmark}`)
   }
 
@@ -169,7 +143,7 @@ class Camera extends React.Component {
         // const landmarks = await processLandmarks(data.uri)
         // const landmarks = await processLandmarks('/Users/jamesgill/Downloads/bean_dawn_5d5624c9-38bc-42c6-a0bc-3b84be7dca9b.jpg')
         // console.log(landmarks)
-        // const landmarks = [];
+        const landmarks = [];
         if (landmarks.length > 0) {
           this.landmarkAlert(landmarks)
         } else {
@@ -249,20 +223,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: "center"
   },
-  spinner: {
-    // marginBottom: 50,
-    marginTop: 150,
-    // flex:1,
-    backgroundColor: '#0053df',
-    alignSelf: 'center',
-  },
   loading: {
     flex: 1,
     backgroundColor: '#0053df',
   },
   logo: {
     flex: 1,
-    // marginTop: 50,
     alignSelf: 'center',
     height: 350, 
     width: 350
