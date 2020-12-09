@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   StyleSheet,
@@ -32,11 +33,17 @@ class App extends React.Component {
       locations: [],
       modalVisible: false,
       // foursquare: [],
-      userInfo: "",
+      userInfo: '',
+      email: null,
+      favorites: [],
+      favoriteClick: false,
+
     };
     this.requestPermission = this.requestPermission.bind(this);
     this.getUserLocation = this.getUserLocation.bind(this);
     this.getFirestoreLocations = this.getFirestoreLocations.bind(this);
+    this.handleSignIn = this.handleSignIn.bind(this);
+    this.getUserFavorites = this.getUserFavorites.bind(this);
     // this.get4SqVenues = this.get4SqVenues.bind(this);
     this.setModalVisible = this.setModalVisible.bind(this);
   }
@@ -53,6 +60,17 @@ class App extends React.Component {
     } else {
       this.getUserLocation();
     }
+    //checking if user is already signed in w/ Google
+    //if not, they will be asked to sign in
+    const { userInfo } = await getCurrentUserInfo();
+    if (userInfo.user.email) {
+      this.setState({
+        email: userInfo.user.email,
+      });
+      await this.getUserFavorites();
+    }
+    console.log('Signed in silently with Google!');
+
     await this.getFirestoreLocations();
     // await this.get4SqVenues();
   }
@@ -119,6 +137,44 @@ class App extends React.Component {
     });
   }
 
+  async handleSignIn() {
+    try {
+      const { userInfo } = await signIn();
+      if (userInfo.user.email) {
+        this.setState({
+          email: userInfo.user.email,
+        });
+        this.getUserFavorites();
+      }
+      console.log('Signed in with Google!');
+    } catch (error) {
+      console.log('Error signing in -> handleSignIn:', error);
+    }
+  }
+
+  async getUserFavorites() {
+    //pulls crowsourced location submissions from firestore
+    const snapshot = await firestore()
+      .collection('users')
+      .doc(this.state.email)
+      .get();
+    if (snapshot.exists) {
+      return await Promise.all(
+        snapshot.data().favorites.map(async (ref) => {
+          const location = await ref.get();
+          this.setState((prevState) => {
+            return {
+              ...prevState,
+              favorites: [...prevState.favorites, location.data()],
+            };
+          });
+        })
+      );
+    } else {
+      console.log('No such document!');
+    }
+  }
+
   // async get4SqVenues() {
   //   const userCoordinates = this.state.userCoords;
   //   const venuesArray = await browse(userCoordinates);
@@ -162,13 +218,24 @@ class App extends React.Component {
                 size={39}
                 color="black"
                 backgroundColor="grey"
-                onPress={() =>
-                  onGoogleButtonPress().then(() =>
-                    console.log("Signed in with Google!")
-                  )
-                }
+                onPress={this.handleSignIn}
               />
             </View>
+            {this.state.email && (
+              <View style={styles.heartButton}>
+                <Icon.Button
+                  name="heart"
+                  size={30}
+                  color="black"
+                  backgroundColor={
+                    this.state.favoriteClick ? 'darkgrey' : 'grey'
+                  }
+                  onPress={() =>
+                    this.setState({ favoriteClick: !this.state.favoriteClick })
+                  }
+                />
+              </View>
+            )}
             <MapboxGL.Camera
               zoomLevel={16}
               centerCoordinate={this.state.userCoords}
@@ -229,13 +296,34 @@ class App extends React.Component {
         ) : (
           <Text>Loading...</Text>
         )}
-        <BottomSheet
-          ref={this.myRef}
-          snapPoints={[800, 125]}
-          renderHeader={renderHeader}
-          renderContent={() => renderInner(this.state.locations)}
-          initialSnap={1}
-        />
+        {this.state.favoriteClick ? (
+          this.state.favorites.length > 0 && (
+            <BottomSheet
+              ref={this.myRef}
+              snapPoints={[800, 125]}
+              renderHeader={renderHeader}
+              renderContent={() => renderInner(this.state.favorites)}
+              initialSnap={1}
+            />
+          )
+        ) : (
+          // ||
+          // (this.state.favorites.length === 0 && (
+          //   <BottomSheet
+          //     ref={this.myRef}
+          //     snapPoints={[800, 125]}
+          //     renderHeader={<Text>No Favorites Yet</Text>}
+          //     initialSnap={1}
+          //   />
+          // ))
+          <BottomSheet
+            ref={this.myRef}
+            snapPoints={[800, 125]}
+            renderHeader={renderHeader}
+            renderContent={() => renderInner(this.state.locations)}
+            initialSnap={1}
+          />
+        )}
       </View>
     );
   }
@@ -282,6 +370,11 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: "center",
+  },
+  heartButton: {
+    position: 'absolute',
+    top: '20%',
+    alignSelf: 'flex-end',
   },
 });
 
