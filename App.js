@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import {
   StyleSheet,
@@ -20,10 +19,9 @@ import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
 import { browse } from './foursquare';
 import renderAnnotation from './renderAnnotation';
 import { renderInner, renderHeader } from './drawer';
-import { retrieveImage } from './storage';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
-import { onGoogleButtonPress } from './signIn';
+import { signIn, getCurrentUserInfo } from './signIn';
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -39,10 +37,15 @@ class App extends React.Component {
       locations: [],
       // foursquare: [],
       userInfo: '',
+      email: null,
+      favorites: [],
+      favoriteClick: false,
     };
     this.requestPermission = this.requestPermission.bind(this);
     this.getUserLocation = this.getUserLocation.bind(this);
     this.getFirestoreLocations = this.getFirestoreLocations.bind(this);
+    this.handleSignIn = this.handleSignIn.bind(this);
+    this.getUserFavorites = this.getUserFavorites.bind(this);
     // this.get4SqVenues = this.get4SqVenues.bind(this);
   }
 
@@ -58,6 +61,17 @@ class App extends React.Component {
     } else {
       this.getUserLocation();
     }
+    //checking if user is already signed in w/ Google
+    //if not, they will be asked to sign in
+    const { userInfo } = await getCurrentUserInfo();
+    if (userInfo.user.email) {
+      this.setState({
+        email: userInfo.user.email,
+      });
+      await this.getUserFavorites();
+    }
+    console.log('Signed in silently with Google!');
+
     await this.getFirestoreLocations();
     // await this.get4SqVenues();
   }
@@ -124,6 +138,44 @@ class App extends React.Component {
     });
   }
 
+  async handleSignIn() {
+    try {
+      const { userInfo } = await signIn();
+      if (userInfo.user.email) {
+        this.setState({
+          email: userInfo.user.email,
+        });
+        this.getUserFavorites();
+      }
+      console.log('Signed in with Google!');
+    } catch (error) {
+      console.log('Error signing in -> handleSignIn:', error);
+    }
+  }
+
+  async getUserFavorites() {
+    //pulls crowsourced location submissions from firestore
+    const snapshot = await firestore()
+      .collection('users')
+      .doc(this.state.email)
+      .get();
+    if (snapshot.exists) {
+      return await Promise.all(
+        snapshot.data().favorites.map(async (ref) => {
+          const location = await ref.get();
+          this.setState((prevState) => {
+            return {
+              ...prevState,
+              favorites: [...prevState.favorites, location.data()],
+            };
+          });
+        })
+      );
+    } else {
+      console.log('No such document!');
+    }
+  }
+
   // async get4SqVenues() {
   //   const userCoordinates = this.state.userCoords;
   //   const venuesArray = await browse(userCoordinates);
@@ -135,18 +187,11 @@ class App extends React.Component {
   //   });
   // }
 
-
   myRef = React.createRef();
 
   render() {
     return (
-        <View style={styles.container}>
-        <Button
-          style={{ justifyContent: 'right' }}
-          title="Camera"
-          onPress={() => this.props.navigation.navigate('Camera')}
-        />
-
+      <View style={styles.container}>
         {this.state.userCoords ? (
           <MapboxGL.MapView
             styleURL={MapboxGL.StyleURL.Street}
@@ -159,8 +204,8 @@ class App extends React.Component {
               <Icon.Button
                 name="camera-retro"
                 size={35}
-                color="black"
-                backgroundColor="grey"
+                color="dimgray"
+                backgroundColor="#f7f5eee8"
                 onPress={() => this.props.navigation.navigate('Camera')}
               />
             </View>
@@ -170,13 +215,24 @@ class App extends React.Component {
                 size={35}
                 color="dimgray"
                 backgroundColor="#f7f5eee8"
-                onPress={() =>
-                  onGoogleButtonPress().then(() =>
-                    console.log('Signed in with Google!')
-                  )
-                }
+                onPress={this.handleSignIn}
               />
             </View>
+            {this.state.email && (
+              <View style={styles.heartButton}>
+                <Icon.Button
+                  name="heart"
+                  size={35}
+                  color="dimgray"
+                  backgroundColor={
+                    this.state.favoriteClick ? 'silver' : '#f7f5eee8'
+                  }
+                  onPress={() =>
+                    this.setState({ favoriteClick: !this.state.favoriteClick })
+                  }
+                />
+              </View>
+            )}
             <MapboxGL.Camera
               zoomLevel={16}
               centerCoordinate={this.state.userCoords}
@@ -193,23 +249,38 @@ class App extends React.Component {
                   idx
                 );
               })}
-            {/* {
-              this.state.foursquare.map((venue, idx) => {
-                const { lat, lng } = venue.location;
-                return renderAnnotation('foursquare', [lng, lat], idx);
-              })
-            } */}
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
         )}
-        <BottomSheet
-          ref={this.myRef}
-          snapPoints={[800, 125]}
-          renderHeader={renderHeader}
-          renderContent={() => renderInner(this.state.locations)}
-          initialSnap={1}
-        />
+        {this.state.favoriteClick ? (
+          this.state.favorites.length > 0 && (
+            <BottomSheet
+              ref={this.myRef}
+              snapPoints={[800, 125]}
+              renderHeader={renderHeader}
+              renderContent={() => renderInner(this.state.favorites)}
+              initialSnap={1}
+            />
+          )
+        ) : (
+          // ||
+          // (this.state.favorites.length === 0 && (
+          //   <BottomSheet
+          //     ref={this.myRef}
+          //     snapPoints={[800, 125]}
+          //     renderHeader={<Text>No Favorites Yet</Text>}
+          //     initialSnap={1}
+          //   />
+          // ))
+          <BottomSheet
+            ref={this.myRef}
+            snapPoints={[800, 125]}
+            renderHeader={renderHeader}
+            renderContent={() => renderInner(this.state.locations)}
+            initialSnap={1}
+          />
+        )}
       </View>
     );
   }
@@ -235,6 +306,40 @@ const styles = StyleSheet.create({
     top: '12%',
     alignSelf: 'flex-end',
   },
+  heartButton: {
+    position: 'absolute',
+    top: '20%',
+    alignSelf: 'flex-end',
+  },
 });
 
 export default App;
+
+/* const ref = {
+  "_documentPath": {
+    "_parts": ["locations", "portal down to old new york"]},
+  "_firestore": {
+    "_app": {
+      "_automaticDataCollectionEnabled": true, "_deleteApp": [Function "bound deleteApp"], "_deleted": false,
+      "_initialized": true,
+      "_name": "[DEFAULT]",
+      "_nativeInitialized": true,
+      "_options": [Object]},
+    "_config": {
+      "ModuleClass": [Function "FirebaseFirestoreModule"],
+      "hasCustomUrlOrRegionSupport": false, "hasMultiAppSupport": true,
+      "namespace": "firestore",
+      "nativeEvents": [Array],
+      "nativeModuleName": [Array],
+      "statics": [Object],
+      "version": "10.1.1"},
+    "_customUrlOrRegion": undefined,
+    "_nativeModule": {
+        "RNFBFirestoreCollectionModule": true, "RNFBFirestoreDocumentModule": true, "RNFBFirestoreModule": true, "RNFBFirestoreTransactionModule": true, "clearPersistence": [Function "anonymous"], "collectionGet": [Function "anonymous"], "collectionOffSnapshot": [Function "anonymous"], "collectionOnSnapshot": [Function "anonymous"], "disableNetwork": [Function "anonymous"], "documentBatch": [Function "anonymous"], "documentDelete": [Function "anonymous"], "documentGet": [Function "anonymous"], "documentOffSnapshot": [Function "anonymous"], "documentOnSnapshot": [Function "anonymous"], "documentSet": [Function "anonymous"], "documentUpdate": [Function "anonymous"], "enableNetwork": [Function "anonymous"], "getConstants": [Function "anonymous"], "setLogLevel": [Function "anonymous"], "settings": [Function "anonymous"],
+        "terminate": [Function "anonymous"], "transactionApplyBuffer": [Function "anonymous"], "transactionBegin": [Function "anonymous"], "transactionDispose": [Function "anonymous"], "transactionGetDocument": [Function "anonymous"], "waitForPendingWrites": [Function "anonymous"]},
+      "_referencePath": {
+        "_parts": [Array]
+      },
+        "_transactionHandler": {
+          "_firestore": ["Circular"],
+          "_pending": [Object]}}} */
