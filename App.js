@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  StyleSheet,
-  View,
-  Platform,
-  Text,
-  LogBox
-} from 'react-native';
+import { StyleSheet, View, Platform, Text, LogBox } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import BottomSheet from 'reanimated-bottom-sheet';
 
@@ -13,18 +7,11 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-community/google-signin';
 import { onGoogleButtonPress } from './signIn';
 
 import renderAnnotation from './renderAnnotation';
 import { browse } from './foursquare';
 import { renderInner, renderHeader } from './drawer';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -38,15 +25,33 @@ class App extends React.Component {
       loading: false,
       userCoords: [],
       locations: [],
-      foursquare: [],
+      // foursquare: [],
       userInfo: '',
     };
-
+    this.requestPermission = this.requestPermission.bind(this);
+    this.getUserLocation = this.getUserLocation.bind(this);
     this.getFirestoreLocations = this.getFirestoreLocations.bind(this);
-    this.get4SqVenues = this.get4SqVenues.bind(this);
+    // this.get4SqVenues = this.get4SqVenues.bind(this);
+  }
+
+  async componentDidMount() {
+    //requests user permission for location
+    if (Platform.OS === 'ios') {
+      Geolocation.requestAuthorization('whenInUse').then((res) => {
+        console.log('authorization result:', res);
+      });
+    }
+    if (Platform.OS === 'android') {
+      this.requestPermission();
+    } else {
+      this.getUserLocation();
+    }
+    await this.getFirestoreLocations();
+    // await this.get4SqVenues();
   }
 
   async requestPermission() {
+    //requests user permission for location on Android devices
     try {
       const granted = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -69,12 +74,12 @@ class App extends React.Component {
   }
 
   getUserLocation() {
+    //once user permission is granted, get user coordinates from device
     Geolocation.getCurrentPosition(
       (position) => {
         this.setState({
           userCoords: [position.coords.longitude, position.coords.latitude],
         });
-        this.get4SqVenues();
       },
       (error) => {
         // See error code charts below.
@@ -84,28 +89,14 @@ class App extends React.Component {
     );
   }
 
-  async componentDidMount() {
-    if (Platform.OS === 'ios') {
-      Geolocation.requestAuthorization('whenInUse').then((res) => {
-        console.log('authorization result:', res);
-      });
-    }
-    if (Platform.OS === 'android') {
-      this.requestPermission();
-    } else {
-      this.getUserLocation();
-    }
-    await this.getFirestoreLocations();
-   
-  
-  }
-
-
   async getFirestoreLocations() {
+    //pulls crowsourced location submissions from firestore
     const snapshot = await firestore().collection('locations').get();
     return snapshot.docs.map((doc) => {
       let docObj = doc.data();
       if (
+        //narrows geographic range of what is rendered
+        //to be in user's general area
         this.state.userCoords[1] - docObj.coordinates.latitude > -0.1 &&
         this.state.userCoords[1] - docObj.coordinates.latitude < 0.1 &&
         this.state.userCoords[0] - docObj.coordinates.longitude > -0.1 &&
@@ -121,22 +112,21 @@ class App extends React.Component {
     });
   }
 
-  async get4SqVenues() {
-    const userCoordinates = this.state.userCoords;
-    const venuesArray = await browse(userCoordinates);
+  // async get4SqVenues() {
+  //   const userCoordinates = this.state.userCoords;
+  //   const venuesArray = await browse(userCoordinates);
 
-    this.setState((prevState) => {
-      return {
-        ...prevState,
-        foursquare: venuesArray,
-      };
-    });
-  }
+  //   this.setState((prevState) => {
+  //     return {
+  //       ...prevState,
+  //       foursquare: venuesArray,
+  //     };
+  //   });
+  // }
 
   myRef = React.createRef();
 
   render() {
-    const venuesArray = this.state.foursquare;
     return (
       <View style={styles.container}>
         {this.state.userCoords ? (
@@ -174,24 +164,27 @@ class App extends React.Component {
               centerCoordinate={this.state.userCoords}
             ></MapboxGL.Camera>
             {renderAnnotation('user', this.state.userCoords)}
-            {this.state.locations.map((location, idx) => {
-              return renderAnnotation(
-                'firestore',
-                [location.coordinates.longitude, location.coordinates.latitude],
-                idx
-              );
-            })}
-            {
-              venuesArray.map((venue, idx) => {
+            {this.state.locations &&
+              this.state.locations.map((location, idx) => {
+                return renderAnnotation(
+                  'firestore',
+                  [
+                    location.coordinates.longitude,
+                    location.coordinates.latitude,
+                  ],
+                  idx
+                );
+              })}
+            {/* {
+              this.state.foursquare.map((venue, idx) => {
                 const { lat, lng } = venue.location;
                 return renderAnnotation('foursquare', [lng, lat], idx);
-              }) //renderAnnotation('foursquare', this.state.foursquare)
-            }
+              })
+            } */}
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
         )}
-
         <BottomSheet
           ref={this.myRef}
           snapPoints={[800, 125]}
@@ -208,7 +201,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     height: '100%',
-    width: '100%'
+    width: '100%',
   },
   map: {
     flex: 1,
@@ -220,9 +213,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   userButton: {
-    position: 'absolute', //use absolute position to show button on top of the map
-    top: '12%', //for center align
-    alignSelf: 'flex-end', //for align to right
+    position: 'absolute',
+    top: '12%',
+    alignSelf: 'flex-end',
   },
 });
 

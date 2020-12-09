@@ -1,8 +1,4 @@
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-community/google-signin';
+import { GoogleSignin } from '@react-native-community/google-signin';
 import { WEB_CLIENT_ID } from './secrets';
 
 GoogleSignin.configure({
