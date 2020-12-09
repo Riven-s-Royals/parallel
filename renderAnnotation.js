@@ -1,27 +1,31 @@
-import React from 'react';
-import MapboxGL from '@react-native-mapbox-gl/maps';
-import { View } from 'react-native';
+import React, { useState, Component } from "react";
+import MapboxGL from "@react-native-mapbox-gl/maps";
+import { View } from "react-native";
 
-const renderAnnotation = (source, coordinates, idx) => {
-  let color = source === 'user' ? '#023e8a' : '#00b4d8';
-  return (
-    <MapboxGL.PointAnnotation
-      key={idx}
-      id={`${source}Annotation`}
-      coordinate={coordinates}
-    >
-      <View
-        style={{
-          height: 20,
-          width: 20,
-          backgroundColor: color,
-          borderRadius: 50,
-          borderColor: '#fff',
-          borderWidth: 2,
-        }}
-      />
-    </MapboxGL.PointAnnotation>
-  );
-};
+class RenderAnnotation extends React.Component {
+  render() {
+    let color = this.props.source === "user" ? "#023e8a" : "#00b4d8";
+    console.log("PROPS IN RENDANO", this.props);
+    return (
+      <MapboxGL.PointAnnotation
+        key={this.props.idx}
+        id={`${this.props.source}Annotation`}
+        coordinate={this.props.coordinates}
+        onSelected={() => this.props.setModal()}
+      >
+        <View
+          style={{
+            height: 20,
+            width: 20,
+            backgroundColor: color,
+            borderRadius: 50,
+            borderColor: "#fff",
+            borderWidth: 2,
+          }}
+        />
+      </MapboxGL.PointAnnotation>
+    );
+  }
+}
 
-export default renderAnnotation;
+export default RenderAnnotation;
