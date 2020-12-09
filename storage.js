@@ -1,15 +1,14 @@
 import storage from '@react-native-firebase/storage';
 
-export const uploadImageToStorage = (path, imageName) => {
-  let reference = storage().ref(imageName);
-  let task = reference.putFile(path);
-
-  task
-    .then(() => {
-      console.log('Image uploaded to the bucket!');
-      console.log('path for retrieval function:', imageName);
-    })
-    .catch((e) => console.log('Error uploading image to storage:', e));
+export const uploadImageToStorage = async (path, imageName) => {
+  try {
+    let reference = storage().ref(imageName);
+    reference.putFile(path);
+    let pathToImage = await reference.getDownloadURL();
+    return pathToImage;
+  } catch (error) {
+    console.log('Error uploading image to storage:', error);
+  }
 };
 
 export const retrieveImage = async (img) => {

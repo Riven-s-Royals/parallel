@@ -20,6 +20,8 @@ import ml from '@react-native-firebase/ml';
 import Spinner from 'react-native-spinkit';
 import { set } from 'react-native-reanimated';
 import {Fields} from './LandmarkForm'
+import {LoadingCarousel} from './Carousel'
+import PulseLoader from 'react-native-pulse-loader';
 
 const FadeInView = (props) => {
   const fadeAnim = useRef(new Animated.Value(0)).current  // Initial value for opacity: 0
@@ -70,7 +72,7 @@ class Camera extends React.Component {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Text style={styles.modalText}>Enter Landmark Information Here</Text>
-              <Fields />
+              <Fields image={this.state.imageUri} />
 
               {/* <TouchableHighlight
                 style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
@@ -97,8 +99,10 @@ class Camera extends React.Component {
     if (this.state.isVisible) 
     return (
         <FadeInView style={styles.loading}>
-          <Spinner style={styles.spinner} isVisible={this.state.isVisible} size={175} type={'Arc'} color={'#ffffff'}/>
-          <Image style={styles.logo} source={require('./assets/parallel_mock_logo2.png')}/>
+          {/* <Spinner style={styles.spinner} isVisible={this.state.isVisible} size={175} type={'Arc'} color={'#ffffff'}/> */}
+          <LoadingCarousel />
+          <PulseLoader avatar={'/Users/jamesgill/Documents/Fullstack/Senior_Phase/Capstone/parallel/assets/parallel_mock_logo_circle.png'} borderColor={'#ffffff'}	backgroundColor={'#ffffff'}/>
+          {/* <Image resizeMode='contain' style={styles.logo} source={require('./assets/parallel_mock_logo2.png')}/> */}
         </FadeInView>)
     return (
       <View style={styles.container}>
@@ -142,15 +146,13 @@ class Camera extends React.Component {
         console.log(data.uri);
         this.setState({ imageUri: data.uri });
         setTimeout(()=>this.setState({isVisible: false}),5000)
-        const landmarks = await processLandmarks(data.uri)
-        console.log(landmarks)
+        // const landmarks = await processLandmarks(data.uri)
+        // const landmarks = await processLandmarks('/Users/jamesgill/Downloads/bean_dawn_5d5624c9-38bc-42c6-a0bc-3b84be7dca9b.jpg')
+        // console.log(landmarks)
+        // const landmarks = [];
         if (landmarks.length > 0) {
           this.landmarkAlert(landmarks)
         } else {
-          uploadImageToStorage(
-            this.state.imageUri,
-            'location' + '-' + Date.now() + '.jpg'
-          );
           this.setState({modalVisible: true})
         }
       }
@@ -240,7 +242,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     flex: 1,
-    marginTop: 50,
+    // marginTop: 50,
     alignSelf: 'center',
     height: 350, 
     width: 350
