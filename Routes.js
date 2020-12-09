@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import App from './App';
 import Camera from './Camera'
+import { Fields } from './LandmarkForm'
 
 const Stack = createStackNavigator();
 

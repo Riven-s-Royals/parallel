@@ -19,30 +19,30 @@ import {
 const { width: screenWidth } = Dimensions.get('window');
 
 export class LoadingCarousel extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      activeIndex: 0,
-      carouselItems: [
-        {
-          title: 'Colosseum',
-          text: 'Rome, Italy',
-          img: 'https://i.ibb.co/RcJbqh6/coliseum-slide500px.jpg',
-        },
-        {
-          title: 'Eiffel Tower',
-          text: 'Paris, France',
-          img: 'https://i.ibb.co/HHXnpQP/eiffel-tower-slide500px.jpg',
-        },
-        {
-          title: 'Taj Mahal',
-          text: 'Angra, India',
-          img: 'https://i.ibb.co/H294z07/taj-mahal-slide500px.jpg',
-        },
-      ],
-    };
-  }
-
+    constructor(props){
+        super(props);
+        this.state = {
+          activeIndex:0,
+          carouselItems: [
+          {
+              title:"Colosseum",
+              text: "Rome, Italy",
+              img: 'https://i.ibb.co/RcJbqh6/coliseum-slide500px.jpg'
+          },
+          {
+              title:"Eiffel Tower",
+              text: "Paris, France",
+              img: 'https://i.ibb.co/HHXnpQP/eiffel-tower-slide500px.jpg'
+          },
+          {
+              title:"Taj Mahal",
+              text: "Angra, India",
+              img: 'https://i.ibb.co/H294z07/taj-mahal-slide500px.jpg'
+          },
+        ]
+      }
+    }
+  
   _renderItem = ({ item, index }, parallaxProps) => {
     return (
       <View
