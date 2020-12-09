@@ -7,13 +7,16 @@ export const uploadImageToStorage = async (path, imageName) => {
     let pathToImage = await reference.getDownloadURL();
     return pathToImage;
   } catch (error) {
-    console.log('Error uploading image to storage:', error);
+    console.log('Error uploading image to storage:', e);
   }
 };
 
-export const retrieveImage = async (img) => {
-  const ref = storage().ref(`/${img}`);
-  const url = await ref.getDownloadURL();
-  console.log('url from storage:', url);
-  return url;
-};
+//obsolete retrieval function
+
+// export const retrieveImage = async (img) => {
+//   const ref = storage().ref(`/${img}`);
+//   const url = await ref.getDownloadURL();
+//   console.log('url from storage:', url);
+//   return url;
+// };
+

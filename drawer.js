@@ -6,46 +6,8 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
+  Image,
 } from 'react-native';
-import Constants from 'expo-constants';
-import { max } from 'react-native-reanimated';
-import { List, ListItem } from 'react-native-elements';
-
-// renderInner = () => (
-//   <View style={styles.panel}>
-//     <Text style={styles.panelTitle}>Swipe Up To Explore!</Text>
-//     {/* <Text style={styles.panelSubtitle}>So Much</Text> */}
-//     <Image style={styles.photo} source={require("./assets/wakeupcat.jpg")} />
-//     <ScrollView style={styles.scrollView}>
-//       <Text style={styles.scrollText}>First Text Box</Text>
-//       <Text style={styles.scrollText}>Second Text Box</Text>
-//       <Text style={styles.scrollText}>Third Text Box</Text>
-//       <Text style={styles.scrollText}>Fourth Text Box</Text>
-//       <Text style={styles.scrollText}>Fifth Text Box</Text>
-//       <Text style={styles.scrollText}>Sixth Text Box</Text>
-//       <Text style={styles.scrollText}>Seventh Text Box</Text>
-//       <Text style={styles.scrollText}>Eighth Text Box</Text>
-//       <Text style={styles.scrollText}>Ninth Text Box</Text>
-//       <Text style={styles.scrollText}>Tenth Text Box</Text>
-//     </ScrollView>
-//   </View>
-// );
-
-// renderInner = () => (
-//   <View style={styles.panel}>
-//     <Text style={styles.panelTitle}>Swipe Up To Explore!</Text>
-//   {/* <List>
-//     <FlatList
-//     data={this.state.foursquare}
-//     renderItem={({ item }) => (
-//       <ListItem
-//       title={`${item.name}`}
-//       />
-//     )}
-//     />
-//   </List> */}
-//   </View>
-// );
 
 export const renderHeader = () => {
   return (
@@ -57,22 +19,41 @@ export const renderHeader = () => {
   );
 };
 
-export const renderInner = (data) => {
+
+export const renderInner = (allPointsArray) => {
   return (
     <View style={styles.panel}>
       <Text style={styles.panelTitle}>Swipe Up To Explore!</Text>
       <FlatList
-        data={data}
-        renderItem={() => renderItemComponent(data)}
+        data={allPointsArray}
+        renderItem={(individualPoint) => renderItemComponent(individualPoint)}
         ItemSeparatorComponent={ItemSeparator}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(individualPoint) => individualPoint.name}
       />
     </View>
   );
 };
 
-const renderItemComponent = (itemData) => {
-  return <TouchableOpacity style={styles.container}></TouchableOpacity>;
+const renderItemComponent = (item) => {
+  let individualItem = item.item;
+  return (
+    <View>
+      <TouchableOpacity style={styles.container}>
+        <Image
+          style={styles.image}
+          source={{
+            uri: individualItem.img,
+          }}
+        />
+      </TouchableOpacity>
+
+      <Text>{individualItem.name}</Text>
+      <Text>
+        {'\n'}
+        {individualItem.description}
+      </Text>
+    </View>
+  );
 };
 
 const ItemSeparator = () => {
@@ -88,13 +69,6 @@ const ItemSeparator = () => {
 };
 
 const styles = StyleSheet.create({
-  panelContainer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
   panel: {
     height: 800,
     padding: 20,
@@ -119,31 +93,8 @@ const styles = StyleSheet.create({
   },
   panelTitle: {
     fontSize: 20,
-    height: 35,
+    height: 75,
     textAlign: 'center',
-  },
-  panelSubtitle: {
-    fontSize: 14,
-    color: 'black',
-    height: 30,
-    marginTop: 30,
-    marginBottom: 10,
-  },
-  photo: {
-    width: '100%',
-    height: 300,
-    marginTop: 50,
-  },
-  scrollContainer: {
-    flex: 1,
-    marginTop: Constants.statusBarHeight,
-  },
-  scrollView: {
-    backgroundColor: 'pink',
-    marginHorizontal: 20,
-  },
-  scrollText: {
-    fontSize: 42,
   },
   image: {
     height: '100%',

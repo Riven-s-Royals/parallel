@@ -11,7 +11,7 @@ const Routes = () => {
   return (
     <NavigationContainer>
         <Stack.Navigator>
-            <Stack.Screen name="Home" component={App}/>
+            <Stack.Screen name="Parallel" component={App}/>
             <Stack.Screen name="Camera" component={Camera}/>
         </Stack.Navigator>
     </NavigationContainer>

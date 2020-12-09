@@ -1,3 +1,4 @@
+
 import { NavigationContext } from '@react-navigation/native';
 import React, { useRef, useEffect, useState } from 'react';
 import {
@@ -55,7 +56,26 @@ class Camera extends React.Component {
       isVisible: false,
       modalVisible: false
     };
+    this.takePicture = this.takePicture.bind(this);
   }
+
+  takePicture = async () => {
+    try {
+      if (this.camera) {
+        const options = { quality: 0.5, base64: true };
+        const data = await this.camera.takePictureAsync(options);
+        console.log(data.uri);
+        this.setState({ imageUri: data.uri });
+        uploadImageToStorage(
+          this.state.imageUri,
+          'location' + '-' + Date.now() + '.jpg'
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   render() {
     const { modalVisible } = this.state;
     if(modalVisible)
