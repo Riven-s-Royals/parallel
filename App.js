@@ -16,7 +16,7 @@ import RenderAnnotation from './renderAnnotation';
 import { renderInner, renderHeader, renderInnerFavorites } from './drawer';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
-import { getCurrentUserInfo } from './signIn';
+import { getCurrentUserInfo, signIn } from './signIn';
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -31,7 +31,6 @@ class App extends React.Component {
       userCoords: [],
       locations: [],
       modalVisible: false,
-      // foursquare: [],
       userInfo: '',
       email: null,
       favorites: [],
@@ -42,7 +41,6 @@ class App extends React.Component {
     this.getFirestoreLocations = this.getFirestoreLocations.bind(this);
     this.handleSignIn = this.handleSignIn.bind(this);
     this.getUserFavorites = this.getUserFavorites.bind(this);
-    // this.get4SqVenues = this.get4SqVenues.bind(this);
     this.setModalVisible = this.setModalVisible.bind(this);
   }
 
@@ -58,19 +56,16 @@ class App extends React.Component {
     } else {
       this.getUserLocation();
     }
-    //checking if user is already signed in w/ Google
-    //if not, they will be asked to sign in
-    const { userInfo } = await getCurrentUserInfo();
-    if (userInfo.user.email) {
+    // checking if user is already signed in w/ Google
+    const user = await getCurrentUserInfo();
+    if (user) {
       this.setState({
-        email: userInfo.user.email,
+        email: user.email,
       });
+      console.log('Signed in silently with Google!');
       await this.getUserFavorites();
     }
-    console.log('Signed in silently with Google!');
-
     await this.getFirestoreLocations();
-    // await this.get4SqVenues();
   }
 
   async requestPermission() {
@@ -140,7 +135,7 @@ class App extends React.Component {
   async handleSignIn() {
     try {
       const { userInfo } = await signIn();
-      if (userInfo.user.email) {
+      if (userInfo) {
         this.setState({
           email: userInfo.user.email,
         });
@@ -154,6 +149,7 @@ class App extends React.Component {
 
   async getUserFavorites() {
     //pulls crowsourced location submissions from firestore
+    //if user is already in firestore
     const snapshot = await firestore()
       .collection('users')
       .doc(this.state.email)
@@ -171,20 +167,15 @@ class App extends React.Component {
         })
       );
     } else {
-      console.log('No such document!');
+      //if user is not already in firestore,
+      //create an account w/ user email from this.state
+      const favorites = [];
+      const res = await firestore()
+        .collection('users')
+        .doc(this.state.email)
+        .set();
     }
   }
-
-  // async get4SqVenues() {
-  //   const userCoordinates = this.state.userCoords;
-  //   const venuesArray = await browse(userCoordinates);
-  //   this.setState((prevState) => {
-  //     return {
-  //       ...prevState,
-  //       foursquare: venuesArray,
-  //     };
-  //   });
-  // }
 
   setModalVisible = () => {
     this.setState({ modalVisible: !this.state.modalVisible });
