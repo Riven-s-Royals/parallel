@@ -8,6 +8,8 @@ import {
   FlatList,
   Image,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { addToFavorites } from './storage';
 
 export const renderHeader = () => {
   return (
@@ -32,30 +34,30 @@ export const renderInner = (allPointsArray) => {
     </View>
   );
 };
-renderInnerNone;
-export const renderInnerNone = () => {
+
+export const renderInnerFavorites = (allPointsArray, email) => {
   return (
     <View style={styles.panel}>
-      <Text style={styles.panelTitle}>Swipe Up To See Your Favorites!</Text>
+      <Text style={styles.panelTitle}>
+        {allPointsArray.length > 0
+          ? 'Swipe Up To See Your Favorites!'
+          : 'No Favorites (Yet!)'}
+      </Text>
+      {allPointsArray.length > 0 && (
+        <FlatList
+          data={allPointsArray}
+          renderItem={(individualPoint) =>
+            renderItemComponent(individualPoint, email)
+          }
+          ItemSeparatorComponent={ItemSeparator}
+          keyExtractor={(individualPoint) => individualPoint.name}
+        />
+      )}
     </View>
   );
 };
 
-export const renderInnerFavorites = (allPointsArray) => {
-  return (
-    <View style={styles.panel}>
-      <Text style={styles.panelTitle}>Swipe Up To See Your Favorites!</Text>
-      <FlatList
-        data={allPointsArray}
-        renderItem={(individualPoint) => renderItemComponent(individualPoint)}
-        ItemSeparatorComponent={ItemSeparator}
-        keyExtractor={(individualPoint) => individualPoint.name}
-      />
-    </View>
-  );
-};
-
-const renderItemComponent = (item) => {
+const renderItemComponent = (item, email) => {
   let individualItem = item.item;
   return (
     <View>
@@ -76,6 +78,17 @@ const renderItemComponent = (item) => {
         {'\n'}
         {'\n'}
       </Text>
+      {!email && (
+        <View style={styles.heartButton}>
+          <Icon.Button
+            name="heart"
+            size={25}
+            color="dimgrey"
+            backgroundColor="#f7f5eee8"
+            onPress={() => addToFavorites(individualItem, email)}
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -137,5 +150,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
       },
     }),
+  },
+  heartButton: {
+    alignSelf: 'flex-end',
+    marginBottom: '2%',
   },
 });

@@ -13,12 +13,7 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
 import RenderAnnotation from './renderAnnotation';
-import {
-  renderInner,
-  renderHeader,
-  renderInnerFavorites,
-  renderInnerNone,
-} from './drawer';
+import { renderInner, renderHeader, renderInnerFavorites } from './drawer';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
 import { getCurrentUserInfo, signIn } from './signIn';
@@ -105,6 +100,7 @@ class App extends React.Component {
         locations: placesArray,
       };
     });
+    // console.log('one location obj', this.state.locations[3]);
   }
 
   async handleSignIn() {
@@ -131,12 +127,11 @@ class App extends React.Component {
       .get();
     if (snapshot.exists) {
       return await Promise.all(
-        snapshot.data().favorites.map(async (ref) => {
-          const location = await ref.get();
+        snapshot.data().favorites.map(async (location) => {
           this.setState((prevState) => {
             return {
               ...prevState,
-              favorites: [...prevState.favorites, location.data()],
+              favorites: [...prevState.favorites, location],
             };
           });
         })
@@ -144,13 +139,15 @@ class App extends React.Component {
     } else {
       //if user is not already in firestore,
       //create an account w/ user email from this.state
-      const data = {
-        favorites: [],
-      };
-      const res = await firestore()
-        .collection('users')
-        .doc(this.state.email)
-        .set(data);
+      if (this.state.email !== null) {
+        const data = {
+          favorites: [],
+        };
+        const res = await firestore()
+          .collection('users')
+          .doc(this.state.email)
+          .set(data);
+      }
     }
   }
 
@@ -260,24 +257,16 @@ class App extends React.Component {
         ) : (
           <Text>Loading...</Text>
         )}
-        {this.state.email ? (
-          this.state.favorites.length === 0 ? (
-            <BottomSheet
-              ref={this.myRef}
-              snapPoints={[800, 125]}
-              renderHeader={renderHeader}
-              renderContent={() => renderInnerNone()}
-              initialSnap={1}
-            />
-          ) : (
-            <BottomSheet
-              ref={this.myRef}
-              snapPoints={[800, 125]}
-              renderHeader={renderHeader}
-              renderContent={() => renderInnerFavorites(this.state.favorites)}
-              initialSnap={1}
-            />
-          )
+        {this.state.email && this.state.favoriteClick ? (
+          <BottomSheet
+            ref={this.myRef}
+            snapPoints={[800, 125]}
+            renderHeader={renderHeader}
+            renderContent={() =>
+              renderInnerFavorites(this.state.favorites, this.state.email)
+            }
+            initialSnap={1}
+          />
         ) : (
           <BottomSheet
             ref={this.myRef}
@@ -287,6 +276,27 @@ class App extends React.Component {
             initialSnap={1}
           />
         )}
+        {/* {this.state.email && !this.state.favoriteClick && (
+          <BottomSheet
+            ref={this.myRef}
+            snapPoints={[800, 125]}
+            renderHeader={renderHeader}
+            renderContent={() =>
+              renderInnerFavorites(this.state.locations, this.state.email)
+            }
+            initialSnap={1}
+          />
+        )} */}
+
+        {/* {!this.state.email && (
+          <BottomSheet
+            ref={this.myRef}
+            snapPoints={[800, 125]}
+            renderHeader={renderHeader}
+            renderContent={() => renderInner(this.state.locations)}
+            initialSnap={1}
+          />
+        )} */}
       </View>
     );
   }
