@@ -16,7 +16,7 @@ import RenderAnnotation from './renderAnnotation';
 import { renderInner, renderHeader } from './drawer';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
-import { onGoogleButtonPress, getCurrentUserInfo } from './signIn';
+import { getCurrentUserInfo } from './signIn';
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -186,8 +186,8 @@ class App extends React.Component {
   //   });
   // }
 
-  setModalVisible = (visible) => {
-    this.setState({ modalVisible: visible });
+  setModalVisible = () => {
+    this.setState({ modalVisible: !this.state.modalVisible });
   };
 
   myRef = React.createRef();
@@ -195,6 +195,38 @@ class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
+        <View style={styles.cameraButton}>
+          <Icon.Button
+            name="camera-retro"
+            size={30}
+            color="dimgrey"
+            backgroundColor="#FFFFFF"
+            onPress={() => this.props.navigation.navigate('Camera')}
+          />
+        </View>
+        <View style={styles.userButton}>
+          <Icon.Button
+            name="user"
+            size={30}
+            color="dimgrey"
+            backgroundColor="#FFFFFF"
+            onPress={this.handleSignIn}
+          />
+        </View>
+        {this.state.email && (
+          <View style={styles.heartButton}>
+            <Icon.Button
+              name="heart"
+              size={30}
+              color="dimgrey"
+              backgroundColor={this.state.favoriteClick ? 'silver' : '#FFFFFF'}
+              onPress={() =>
+                this.setState({ favoriteClick: !this.state.favoriteClick })
+              }
+            />
+          </View>
+        )}
+
         {this.state.userCoords ? (
           <MapboxGL.MapView
             styleURL={MapboxGL.StyleURL.Street}
@@ -203,39 +235,6 @@ class App extends React.Component {
             showUserLocation={true}
             style={styles.map}
           >
-            <View style={styles.cameraButton}>
-              <Icon.Button
-                name="camera-retro"
-                size={30}
-                color="dimgrey"
-                backgroundColor="#FFFFFF"
-                onPress={() => this.props.navigation.navigate('Camera')}
-              />
-            </View>
-            <View style={styles.userButton}>
-              <Icon.Button
-                name="user"
-                size={39}
-                color="dimgrey"
-                backgroundColor="#FFFFFF"
-                onPress={this.handleSignIn}
-              />
-            </View>
-            {this.state.email && (
-              <View style={styles.heartButton}>
-                <Icon.Button
-                  name="heart"
-                  size={30}
-                  color="dimgrey"
-                  backgroundColor={
-                    this.state.favoriteClick ? 'silver' : '#FFFFFF'
-                  }
-                  onPress={() =>
-                    this.setState({ favoriteClick: !this.state.favoriteClick })
-                  }
-                />
-              </View>
-            )}
             <MapboxGL.Camera
               zoomLevel={16}
               centerCoordinate={this.state.userCoords}
@@ -245,26 +244,21 @@ class App extends React.Component {
               coordinates={this.state.userCoords}
               setModal={this.setModalVisible}
             />
-            {this.state.locations.map((location, idx) => {
-              return (
-                <RenderAnnotation
-                  key={idx}
-                  source={'firestore'}
-                  coordinates={[
-                    location.coordinates.longitude,
-                    location.coordinates.latitude,
-                  ]}
-                  idx={idx}
-                  setModal={this.setModalVisible}
-                />
-              );
-            })}
-            {/* {
-              this.state.foursquare.map((venue, idx) => {
-                const { lat, lng } = venue.location;
-                return renderAnnotation('foursquare', [lng, lat], idx);
-              })
-            } */}
+            {this.state.locations.length > 0 &&
+              this.state.locations.map((location, idx) => {
+                return (
+                  <RenderAnnotation
+                    key={idx}
+                    source="firestore"
+                    coordinates={[
+                      location.coordinates.longitude,
+                      location.coordinates.latitude,
+                    ]}
+                    idx={idx}
+                    setModal={this.setModalVisible}
+                  />
+                );
+              })}
             <View style={styles.centeredView}>
               <Modal
                 animationType="slide"
@@ -284,7 +278,7 @@ class App extends React.Component {
                         backgroundColor: 'grey',
                       }}
                       onPress={() => {
-                        this.setModalVisible(!this.state.modalVisible);
+                        this.setModalVisible();
                       }}
                     >
                       <Text style={styles.textStyle}>Hide Modal</Text>
