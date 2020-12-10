@@ -17,6 +17,7 @@ import { renderInner, renderHeader } from './drawer';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
 import { getCurrentUserInfo, signIn } from './signIn';
+import ParentModal from './ParentModal'
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -259,34 +260,7 @@ class App extends React.Component {
                   />
                 );
               })}
-            <View style={styles.centeredView}>
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={this.state.modalVisible}
-                onRequestClose={() => {
-                  Alert.alert('Modal has been closed.');
-                }}
-              >
-                <View style={styles.centeredView}>
-                  <View style={styles.modalView}>
-                    <Text style={styles.modalText}>Hello World!</Text>
-
-                    <TouchableHighlight
-                      style={{
-                        ...styles.openButton,
-                        backgroundColor: 'grey',
-                      }}
-                      onPress={() => {
-                        this.setModalVisible();
-                      }}
-                    >
-                      <Text style={styles.textStyle}>Hide Modal</Text>
-                    </TouchableHighlight>
-                  </View>
-                </View>
-              </Modal>
-            </View>
+            <ParentModal modalState={this.state.modalVisible} setModal={this.setModalVisible} />
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
