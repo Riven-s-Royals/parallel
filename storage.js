@@ -1,4 +1,5 @@
 import storage from '@react-native-firebase/storage';
+import firestore from '@react-native-firebase/firestore';
 
 export const uploadImageToStorage = async (path, imageName) => {
   try {
@@ -11,12 +12,16 @@ export const uploadImageToStorage = async (path, imageName) => {
   }
 };
 
-//obsolete retrieval function
-
-// export const retrieveImage = async (img) => {
-//   const ref = storage().ref(`/${img}`);
-//   const url = await ref.getDownloadURL();
-//   console.log('url from storage:', url);
-//   return url;
-// };
-
+export const addToFavorites = async (locationInfo, email) => {
+  //adds location info to users firestore favorites
+  try {
+    const res = await firestore()
+      .collection('users')
+      .doc(email)
+      .update({
+        favorites: firestore.FieldValue.arrayUnion(locationInfo),
+      });
+  } catch (error) {
+    console.log('Error adding location to favorites:', error);
+  }
+};
