@@ -16,7 +16,7 @@ import RenderAnnotation from './renderAnnotation';
 import { renderInner, renderHeader } from './drawer';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
-import { getCurrentUserInfo } from './signIn';
+import { getCurrentUserInfo, signIn } from './signIn';
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -198,18 +198,18 @@ class App extends React.Component {
         <View style={styles.cameraButton}>
           <Icon.Button
             name="camera-retro"
-            size={30}
-            color="dimgrey"
-            backgroundColor="#FFFFFF"
+            size={28}
+            color="#a0a8b6"
+            backgroundColor="#364f77"
             onPress={() => this.props.navigation.navigate('Camera')}
           />
         </View>
         <View style={styles.userButton}>
           <Icon.Button
             name="user"
-            size={30}
-            color="dimgrey"
-            backgroundColor="#FFFFFF"
+            size={37}
+            color="#a0a8b6"
+            backgroundColor="#364f77"
             onPress={this.handleSignIn}
           />
         </View>
@@ -218,8 +218,8 @@ class App extends React.Component {
             <Icon.Button
               name="heart"
               size={30}
-              color="dimgrey"
-              backgroundColor={this.state.favoriteClick ? 'silver' : '#FFFFFF'}
+              color="#a0a8b6"
+              backgroundColor={this.state.favoriteClick ? "#c22f72" : '#364f77'}
               onPress={() =>
                 this.setState({ favoriteClick: !this.state.favoriteClick })
               }
