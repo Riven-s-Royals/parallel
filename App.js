@@ -13,7 +13,7 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
 import RenderAnnotation from './renderAnnotation';
-import { renderInner, renderHeader } from './drawer';
+import { renderInner, renderHeader, renderInnerFavorites } from './drawer';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
 import { getCurrentUserInfo } from './signIn';
@@ -204,16 +204,7 @@ class App extends React.Component {
             onPress={() => this.props.navigation.navigate('Camera')}
           />
         </View>
-        <View style={styles.userButton}>
-          <Icon.Button
-            name="user"
-            size={30}
-            color="dimgrey"
-            backgroundColor="#FFFFFF"
-            onPress={this.handleSignIn}
-          />
-        </View>
-        {this.state.email && (
+        {this.state.email ? (
           <View style={styles.heartButton}>
             <Icon.Button
               name="heart"
@@ -223,6 +214,16 @@ class App extends React.Component {
               onPress={() =>
                 this.setState({ favoriteClick: !this.state.favoriteClick })
               }
+            />
+          </View>
+        ) : (
+          <View style={styles.userButton}>
+            <Icon.Button
+              name="user"
+              size={30}
+              color="dimgrey"
+              backgroundColor="#FFFFFF"
+              onPress={this.handleSignIn}
             />
           </View>
         )}
@@ -297,20 +298,11 @@ class App extends React.Component {
               ref={this.myRef}
               snapPoints={[800, 125]}
               renderHeader={renderHeader}
-              renderContent={() => renderInner(this.state.favorites)}
+              renderContent={() => renderInnerFavorites(this.state.favorites)}
               initialSnap={1}
             />
           )
         ) : (
-          // ||
-          // (this.state.favorites.length === 0 && (
-          //   <BottomSheet
-          //     ref={this.myRef}
-          //     snapPoints={[800, 125]}
-          //     renderHeader={<Text>No Favorites Yet</Text>}
-          //     initialSnap={1}
-          //   />
-          // ))
           <BottomSheet
             ref={this.myRef}
             snapPoints={[800, 125]}
@@ -346,7 +338,7 @@ const styles = StyleSheet.create({
   },
   heartButton: {
     position: 'absolute',
-    top: '20%',
+    top: '12%',
     alignSelf: 'flex-end',
   },
   centeredView: {

@@ -71,7 +71,7 @@ export const getCurrentUserInfo = async () => {
     if (error.code === statusCodes.SIGN_IN_REQUIRED) {
       // user has not signed in yet
       console.log(`User hasn't signed in yet.`);
-      signIn();
+      // signIn();
     } else {
       // some other error
       console.log('Error signing in silently.');
