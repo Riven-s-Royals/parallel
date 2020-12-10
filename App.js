@@ -272,7 +272,9 @@ class App extends React.Component {
             ref={this.myRef}
             snapPoints={[800, 125]}
             renderHeader={renderHeader}
-            renderContent={() => renderInner(this.state.locations)}
+            renderContent={() =>
+              renderInner(this.state.locations, this.state.email)
+            }
             initialSnap={1}
           />
         )}

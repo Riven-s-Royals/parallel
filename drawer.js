@@ -21,13 +21,15 @@ export const renderHeader = () => {
   );
 };
 
-export const renderInner = (allPointsArray) => {
+export const renderInner = (allPointsArray, email) => {
   return (
     <View style={styles.panel}>
       <Text style={styles.panelTitle}>Swipe Up To Explore!</Text>
       <FlatList
         data={allPointsArray}
-        renderItem={(individualPoint) => renderItemComponent(individualPoint)}
+        renderItem={(individualPoint) =>
+          renderItemComponent(individualPoint, email)
+        }
         ItemSeparatorComponent={ItemSeparator}
         keyExtractor={(individualPoint) => individualPoint.name}
       />
@@ -78,7 +80,7 @@ const renderItemComponent = (item, email) => {
         {'\n'}
         {'\n'}
       </Text>
-      {!email && (
+      {email && (
         <View style={styles.heartButton}>
           <Icon.Button
             name="heart"
