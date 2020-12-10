@@ -13,7 +13,12 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
 import RenderAnnotation from './renderAnnotation';
-import { renderInner, renderHeader, renderInnerFavorites } from './drawer';
+import {
+  renderInner,
+  renderHeader,
+  renderInnerFavorites,
+  renderInnerNone,
+} from './drawer';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
 import { getCurrentUserInfo, signIn } from './signIn';
@@ -26,8 +31,6 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      permissionsGranted: null,
-      loading: false,
       userCoords: [],
       locations: [],
       modalVisible: false,
@@ -36,7 +39,6 @@ class App extends React.Component {
       favorites: [],
       favoriteClick: false,
     };
-    this.requestPermission = this.requestPermission.bind(this);
     this.getUserLocation = this.getUserLocation.bind(this);
     this.getFirestoreLocations = this.getFirestoreLocations.bind(this);
     this.handleSignIn = this.handleSignIn.bind(this);
@@ -51,11 +53,7 @@ class App extends React.Component {
         console.log('authorization result:', res);
       });
     }
-    if (Platform.OS === 'android') {
-      this.requestPermission();
-    } else {
-      this.getUserLocation();
-    }
+    this.getUserLocation();
     // checking if user is already signed in w/ Google
     const user = await getCurrentUserInfo();
     if (user) {
@@ -66,29 +64,6 @@ class App extends React.Component {
       await this.getUserFavorites();
     }
     await this.getFirestoreLocations();
-  }
-
-  async requestPermission() {
-    //requests user permission for location on Android devices
-    try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-      ]).then((result) => {
-        console.log('result', result);
-        if (
-          result['android.permission.ACCESS_COARSE_LOCATION'] &&
-          result['android.permission.ACCESS_FINE_LOCATION'] === 'granted'
-        ) {
-          this.getUserLocation();
-          this.setState({
-            permissionsGranted: true,
-          });
-        }
-      });
-    } catch (err) {
-      console.warn('err', err);
-    }
   }
 
   getUserLocation() {
@@ -169,11 +144,13 @@ class App extends React.Component {
     } else {
       //if user is not already in firestore,
       //create an account w/ user email from this.state
-      const favorites = [];
+      const data = {
+        favorites: [],
+      };
       const res = await firestore()
         .collection('users')
         .doc(this.state.email)
-        .set();
+        .set(data);
     }
   }
 
@@ -283,8 +260,16 @@ class App extends React.Component {
         ) : (
           <Text>Loading...</Text>
         )}
-        {this.state.favoriteClick ? (
-          this.state.favorites.length > 0 && (
+        {this.state.email ? (
+          this.state.favorites.length === 0 ? (
+            <BottomSheet
+              ref={this.myRef}
+              snapPoints={[800, 125]}
+              renderHeader={renderHeader}
+              renderContent={() => renderInnerNone()}
+              initialSnap={1}
+            />
+          ) : (
             <BottomSheet
               ref={this.myRef}
               snapPoints={[800, 125]}

@@ -32,6 +32,14 @@ export const renderInner = (allPointsArray) => {
     </View>
   );
 };
+renderInnerNone;
+export const renderInnerNone = () => {
+  return (
+    <View style={styles.panel}>
+      <Text style={styles.panelTitle}>Swipe Up To See Your Favorites!</Text>
+    </View>
+  );
+};
 
 export const renderInnerFavorites = (allPointsArray) => {
   return (
