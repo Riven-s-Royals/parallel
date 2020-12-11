@@ -14,16 +14,15 @@ const favoriteAndClose = (locationInfo, email, setModalCallback) => {
   setModalCallback();
 };
 
+const goBack = (setModalCallback, setModalToNull) => {
+  setModalCallback();
+  setModalToNull()
+}
+
 const ParentModal = (props) => {
-  let image = props.objectDetails
-    ? { uri: props.objectDetails.image }
-    : { uri: props.currentLocation.img };
-  let name = props.objectDetails
-    ? props.objectDetails.name
-    : props.currentLocation.name;
-  let description = props.objectDetails
-    ? props.objectDetails.description
-    : props.currentLocation.description;
+  let image = props.objectDetails ? {uri: props.objectDetails.image} : {uri: props.currentLocation.img};
+  let name = props.objectDetails ? props.objectDetails.name : props.currentLocation.name;
+  let description = props.objectDetails ? props.objectDetails.description : props.currentLocation.description
   return (
     <View style={styles.container}>
       <Modal
@@ -40,7 +39,7 @@ const ParentModal = (props) => {
 
         <Text style={styles.descriptionText}>{description}</Text>
 
-        <TouchableOpacity style={styles.closeButton} onPress={props.setModal}>
+        <TouchableOpacity style={styles.closeButton} onPress={()=>goBack(props.setModal,props.setModalToNull)}>
           <Text style={styles.closeText}>Go Back</Text>
         </TouchableOpacity>
         <TouchableOpacity
