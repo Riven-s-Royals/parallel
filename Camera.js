@@ -49,6 +49,7 @@ class Camera extends React.Component {
     };
     this.takePicture = this.takePicture.bind(this);
     this.renderModal = this.renderModal.bind(this);
+    this.setFormInState = this.setFormInState.bind(this);
   }
 
   landmarkAlert (locations) {
@@ -57,6 +58,10 @@ class Camera extends React.Component {
 
   renderModal () {
     this.props.route.params.setModalVisible()
+  }
+
+  setFormInState () {
+    this.props.route.params.setFormInState()
   }
 
   takePicture = async () => {
@@ -99,7 +104,7 @@ render() {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Text style={styles.modalText}>Enter Landmark Information Here</Text>
-              <Fields renderModal={this.renderModal} navigation={this.props.navigation} image={this.state.imageUri} />
+              <Fields renderModal={this.renderModal} navigation={this.props.navigation} image={this.state.imageUri} setFormInState={this.setFormInState} />
               </View>
             </View>
           </Modal>
