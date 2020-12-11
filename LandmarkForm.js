@@ -6,7 +6,7 @@ import firestore, { GeoPoint } from '@react-native-firebase/firestore';
 
 export class Fields extends React.Component {
   constructor(props) {
-    super (props)
+    super(props);
     this.state = {
       name: '',
       description: '',
@@ -17,7 +17,7 @@ export class Fields extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
-  componentDidMount () {
+  componentDidMount() {
     if (Platform.OS === 'ios') {
       Geolocation.requestAuthorization('whenInUse').then((res) => {
         console.log('authorization result:', res);
@@ -30,11 +30,11 @@ export class Fields extends React.Component {
     }
   }
 
-  getUserLocation () {
+  getUserLocation() {
     return Geolocation.getCurrentPosition(
       (position) => {
         this.setState({
-          userCoords: [ position.coords.latitude, position.coords.longitude ],
+          userCoords: [position.coords.latitude, position.coords.longitude],
         });
       },
       (error) => {
@@ -44,67 +44,78 @@ export class Fields extends React.Component {
     );
   }
 
-  async handleSubmit (image,name,description) {
-    const imgName = 'location' + '-' + Date.now() + '.jpg'
+  async handleSubmit(image, name, description) {
+    console.log('handle submit image', image);
+    console.log('handle submit name', name);
+    console.log('handle submit description', description);
+    const imgName = 'location' + '-' + Date.now() + '.jpg';
     const imagePath = await uploadImageToStorage(image, imgName);
-    const lowerCaseName = name.toLowerCase()
-    await firestore() 
-    .collection('locations')
-    .doc(lowerCaseName)
-    .set({
-      coordinates: new firestore.GeoPoint(this.state.userCoords[0],this.state.userCoords[1]),
-      description: description,
-      img: imagePath,
-      name: name,
-    })
-    .then(() => {
+    const lowerCaseName = name.toLowerCase();
+    await firestore()
+      .collection('locations')
+      .doc(lowerCaseName)
+      .set({
+        coordinates: new firestore.GeoPoint(
+          40.73202215078788,
+          -73.95962210126874
+        ),
+        description: description,
+        img: imagePath,
+        name: name,
+      })
+      .then(() => {
       const modalObject = {image:imagePath, name:name, description:description}
       this.props.navigation.navigate('Parallel', {modalObject})
       setTimeout(this.props.renderModal,1000)
-    })
+    });
   }
 
-  render () {
+  render() {
     return (
-      <View style={{padding: 10}}>
-          <Text style={{padding:5}}>Name:</Text>
-          <TextInput
-              style={{height: 30, backgroundColor: '#F5FFFA', borderWidth: .5, borderRadius: 13, padding: 5}}
-              placeholder="  Enter Name Here"
-              multiline={true}
-              onChangeText={name => this.setState({...this.state, name: name})}
-              defaultValue={this.state.name}
-          />
-          <Text style={{padding:5}}>Description:</Text>
-          <TextInput
-              style={{height: 30, backgroundColor: '#F5FFFA', borderWidth: .5, borderRadius: 13, padding: 5}}
-              multiline={true}
-              placeholder=" Enter Description Here"
-              onChangeText={description => this.setState({...this.state, description: description})}
-              defaultValue={this.state.description}
-          />
-          <Button onPress={()=>this.handleSubmit(this.props.image,this.state.name,this.state.description)} title='Submit'>Submit</Button>
+      <View style={{ padding: 10 }}>
+        <Text style={{ padding: 5 }}>Name:</Text>
+        <TextInput
+          style={{
+            height: 30,
+            backgroundColor: '#F5FFFA',
+            borderWidth: 0.5,
+            borderRadius: 13,
+            padding: 5,
+          }}
+          placeholder="  Enter Name Here"
+          multiline={true}
+          onChangeText={(name) => this.setState({ ...this.state, name: name })}
+          defaultValue={this.state.name}
+        />
+        <Text style={{ padding: 5 }}>Description:</Text>
+        <TextInput
+          style={{
+            height: 30,
+            backgroundColor: '#F5FFFA',
+            borderWidth: 0.5,
+            borderRadius: 13,
+            padding: 5,
+          }}
+          multiline={true}
+          placeholder=" Enter Description Here"
+          onChangeText={(description) =>
+            this.setState({ ...this.state, description: description })
+          }
+          defaultValue={this.state.description}
+        />
+        <Button
+          onPress={() =>
+            this.handleSubmit(
+              this.props.image,
+              this.state.name,
+              this.state.description
+            )
+          }
+          title="Submit"
+        >
+          Submit
+        </Button>
       </View>
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
