@@ -26,15 +26,15 @@ class App extends React.Component {
       favorites: [],
       favoriteClick: false,
       currentLocation: null,
-      modalObjects: null
+      modalObjects: null,
     };
     this.getUserLocation = this.getUserLocation.bind(this);
     this.getFirestoreLocations = this.getFirestoreLocations.bind(this);
     this.handleSignIn = this.handleSignIn.bind(this);
     this.getUserFavorites = this.getUserFavorites.bind(this);
     this.setModalVisible = this.setModalVisible.bind(this);
-    this.setFormInState = this.setFormInState.bind(this)
-    this.setModalToNull = this.setModalToNull.bind(this)
+    this.setFormInState = this.setFormInState.bind(this);
+    this.setModalToNull = this.setModalToNull.bind(this);
     this.locationsSubscriber = firestore()
       .collection('locations')
       .onSnapshot((allLocations) => {
@@ -177,16 +177,15 @@ class App extends React.Component {
     }
   }
 
-
   setFormInState() {
     if (this.props.route.params.modalObject) {
-      this.setState({ modalObject: this.props.route.params.modalObject })
+      this.setState({ modalObject: this.props.route.params.modalObject });
     }
   }
 
-  setModalToNull () {
-    this.setState({ modalObject: null, currentLocation: null })
-   }
+  setModalToNull() {
+    this.setState({ modalObject: null, currentLocation: null });
+  }
 
   setModalVisible = (index = null) => {
     if (index) {
@@ -206,7 +205,12 @@ class App extends React.Component {
             size={29}
             color="#a0a8b6"
             backgroundColor="#364f77"
-            onPress={() => this.props.navigation.navigate('Camera', {setModalVisible: this.setModalVisible, setFormInState: this.setFormInState})}
+            onPress={() =>
+              this.props.navigation.navigate('Camera', {
+                setModalVisible: this.setModalVisible,
+                setFormInState: this.setFormInState,
+              })
+            }
           />
         </View>
         {this.state.email ? (
@@ -266,11 +270,23 @@ class App extends React.Component {
                 );
               })}
 
-            {this.state.modalObject && 
-              <ParentModal objectDetails={this.props.route.params.modalObject} modalState={this.state.modalVisible} setModal={this.setModalVisible} setModalToNull={this.setModalToNull} />
-            }
-              {this.state.currentLocation && <ParentModal modalState={this.state.modalVisible} setModal={this.setModalVisible} setModalToNull={this.setModalToNull} userInfo={this.state.userInfo} currentLocation={this.state.currentLocation} />}
-
+            {this.state.modalObject && (
+              <ParentModal
+                objectDetails={this.props.route.params.modalObject}
+                modalState={this.state.modalVisible}
+                setModal={this.setModalVisible}
+                setModalToNull={this.setModalToNull}
+              />
+            )}
+            {this.state.currentLocation && (
+              <ParentModal
+                modalState={this.state.modalVisible}
+                setModal={this.setModalVisible}
+                setModalToNull={this.setModalToNull}
+                email={this.state.email}
+                currentLocation={this.state.currentLocation}
+              />
+            )}
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
