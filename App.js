@@ -22,11 +22,10 @@ class App extends React.Component {
       userCoords: [],
       locations: [],
       modalVisible: false,
-      userInfo: '',
       email: null,
       favorites: [],
       favoriteClick: false,
-      currentLocation: null
+      currentLocation: null,
     };
     this.getUserLocation = this.getUserLocation.bind(this);
     this.getFirestoreLocations = this.getFirestoreLocations.bind(this);
@@ -59,35 +58,7 @@ class App extends React.Component {
           };
         });
       });
-    // this.favoritesSubscriber = firestore()
-    //   .collection('users')
-    //   .doc(this.state.email)
-    //   .onSnapshot((allLocations) => {
-    //     let placesArray = [];
-    //     allLocations.docs.map((location) => {
-    //       let locationObj = location.data();
-    //       if (
-    //         //narrows geographic range of what is rendered
-    //         //to be in user's general area
-    //         this.state.userCoords[1] - locationObj.coordinates.latitude >
-    //           -0.1 &&
-    //         this.state.userCoords[1] - locationObj.coordinates.latitude < 0.1 &&
-    //         this.state.userCoords[0] - locationObj.coordinates.longitude >
-    //           -0.1 &&
-    //         this.state.userCoords[0] - locationObj.coordinates.longitude < 0.1
-    //       ) {
-    //         placesArray.push(locationObj);
-    //       }
-    //     });
-    //     this.setState((prevState) => {
-    //       return {
-    //         ...prevState,
-    //         locations: placesArray,
-    //       };
-    //     });
-    //   });
     this.locationsSubscriber = this.locationsSubscriber.bind(this);
-    // this.favoritesSubscriber = this.favoritesSubscriber.bind(this);
   }
 
   async componentDidMount() {
@@ -108,6 +79,10 @@ class App extends React.Component {
       await this.getUserFavorites();
     }
     await this.getFirestoreLocations();
+  }
+
+  componentWillUnmount() {
+    this.locationsSubscriber = '';
   }
 
   getUserLocation() {
@@ -199,12 +174,37 @@ class App extends React.Component {
     }
   }
 
+  updateFavorites() {
+    if (this.state.email) {
+      const snapshot = firestore()
+        .collection('users')
+        .doc(this.state.email)
+        .get();
+      console.log('snapshot??', snapshot);
+    }
 
+    //   firestore()
+    //   .collection('users')
+    //   .doc(this.state.email)
+    //   .onSnapshot();
+    // if (snapshot.exists) {
+    //   return await Promise.all(
+    //     snapshot.data().favorites.map(async (location) => {
+    //       this.setState((prevState) => {
+    //         return {
+    //           ...prevState,
+    //           favorites: [...prevState.favorites, location],
+    //         };
+    //       });
+    //     })
+    //   );
+    // }
+  }
 
   setModalVisible = (index = null) => {
-   if (index){
-     this.setState({currentLocation: this.state.locations[index]})
-   }
+    if (index) {
+      this.setState({ currentLocation: this.state.locations[index] });
+    }
     this.setState({ modalVisible: !this.state.modalVisible });
   };
 
@@ -219,7 +219,11 @@ class App extends React.Component {
             size={29}
             color="#a0a8b6"
             backgroundColor="#364f77"
-            onPress={() => this.props.navigation.navigate('Camera', {setModalVisible: this.setModalVisible})}
+            onPress={() =>
+              this.props.navigation.navigate('Camera', {
+                setModalVisible: this.setModalVisible,
+              })
+            }
           />
         </View>
         {this.state.email ? (
@@ -236,16 +240,16 @@ class App extends React.Component {
           </View>
         ) : (
           <View style={styles.userButton}>
-          <Icon.Button
-            name="user"
-            size={39}
-            color="#a0a8b6"
-            backgroundColor="#364f77"
-            onPress={this.handleSignIn}
-          />
-        </View>
+            <Icon.Button
+              name="user"
+              size={39}
+              color="#a0a8b6"
+              backgroundColor="#364f77"
+              onPress={this.handleSignIn}
+            />
+          </View>
         )}
-        
+
         {this.state.userCoords ? (
           <MapboxGL.MapView
             styleURL={MapboxGL.StyleURL.Street}
@@ -278,11 +282,22 @@ class App extends React.Component {
                   />
                 );
               })}
-//             {this.state.modalVisible && 
-//               <ParentModal objectDetails={this.props.route.params.modalObject} modalState={this.state.modalVisible} setModal={this.setModalVisible} />
-//             }
+            {/* {this.state.modalVisible && (
+              <ParentModal
+                objectDetails={this.props.route.params.modalObject}
+                modalState={this.state.modalVisible}
+                setModal={this.setModalVisible}
+              />
+            )} */}
 
-              {this.state.currentLocation && <ParentModal modalState={this.state.modalVisible} setModal={this.setModalVisible} userInfo={this.state.userInfo} currentLocation={this.state.currentLocation}/>}
+            {this.state.currentLocation && (
+              <ParentModal
+                modalState={this.state.modalVisible}
+                setModal={this.setModalVisible}
+                email={this.state.email}
+                currentLocation={this.state.currentLocation}
+              />
+            )}
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
