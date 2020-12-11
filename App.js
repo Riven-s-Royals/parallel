@@ -34,6 +34,7 @@ class App extends React.Component {
       email: null,
       favorites: [],
       favoriteClick: false,
+      currentLocation: null
     };
     this.getUserLocation = this.getUserLocation.bind(this);
     this.getFirestoreLocations = this.getFirestoreLocations.bind(this);
@@ -152,7 +153,12 @@ class App extends React.Component {
     }
   }
 
-  setModalVisible = () => {
+
+
+  setModalVisible = (index = null) => {
+   if (index){
+     this.setState({currentLocation: this.state.locations[index]})
+   }
     this.setState({ modalVisible: !this.state.modalVisible });
   };
 
@@ -226,37 +232,13 @@ class App extends React.Component {
                   />
                 );
               })}
-            {/* <View style={styles.centeredView}>
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={this.state.modalVisible}
-                onRequestClose={() => {
-                  Alert.alert('Modal has been closed.');
-                }}
-              >
-                <View style={styles.centeredView}>
-                  <View style={styles.modalView}>
-                    <Text style={styles.modalText}>Hello World!</Text>
+//             {this.state.modalVisible && 
+//               <ParentModal objectDetails={this.props.route.params.modalObject} modalState={this.state.modalVisible} setModal={this.setModalVisible} />
+//             }
 
-                    <TouchableHighlight
-                      style={{
-                        ...styles.openButton,
-                        backgroundColor: 'grey',
-                      }}
-                      onPress={() => {
-                        this.setModalVisible();
-                      }}
-                    >
-                      <Text style={styles.textStyle}>Hide Modal</Text>
-                    </TouchableHighlight>
-                  </View>
-                </View>
-              </Modal>
-            </View> */}
-            {this.state.modalVisible && 
-              <ParentModal objectDetails={this.props.route.params.modalObject} modalState={this.state.modalVisible} setModal={this.setModalVisible} />
-            }
+              {this.state.currentLocation && <ParentModal modalState={this.state.modalVisible} setModal={this.setModalVisible} userInfo={this.state.userInfo} currentLocation={this.state.currentLocation}/>}
+            
+
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>

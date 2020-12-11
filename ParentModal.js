@@ -5,8 +5,14 @@ import {
   Text,
   StyleSheet,
   Modal,
-  TouchableHighlight,
+  TouchableOpacity,
 } from "react-native";
+import { addToFavorites } from "./storage";
+
+const favoriteAndClose = (locationInfo, userEmail, setModalCallback) => {
+  addToFavorites(locationInfo, userEmail);
+  setModalCallback();
+};
 
 const ParentModal = (props) => {
   let image = props.objectDetails ? {uri: props.objectDetails.image} : {uri: props.currentLocation.img};
@@ -16,112 +22,55 @@ const ParentModal = (props) => {
     <View style={styles.container}>
       <Modal
         animationType="slide"
-        transparent={true}
+        transparent={false}
         visible={props.modalState}
         onRequestClose={() => {
           Alert.alert("Modal has been closed.");
         }}
       >
-        <Image
-          style={styles.image}
-          // source={props.objectDetails.image}
-          source={image}
-        />
 
-        <Text style={styles.text}>{name}</Text>
+        <Image style={styles.image} source={image} />
 
-        <Text style={styles.text}>
-        {description}
-        </Text>
+        <Text style={styles.titleText}>{name}</Text>
 
-        <TouchableHighlight style={styles.closeButton} onPress={props.setModal}>
+        <Text style={styles.descriptionText}>{description}</Text>
+
+        <TouchableOpacity style={styles.closeButton} onPress={props.setModal}>
           <Text style={styles.closeText}>Go Back</Text>
-        </TouchableHighlight>
-        <TouchableHighlight style={styles.button} onPress={props.setModal}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.favoritesButton}
+          onPress={() =>
+            favoriteAndClose(
+              props.currentLocation,
+              props.userInfo,
+              props.setModal
+            )
+          }
+        >
           <Text style={styles.buttonText}>Add To Favorites</Text>
-        </TouchableHighlight>
+        </TouchableOpacity>
       </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  //   centeredView: {
-  //     flex: 1,
-  //     justifyContent: "center",
-  //     // alignItems: "center",
-  //     // marginTop: 22,
-  //     borderTopLeftRadius: 10,
-  //     borderTopRightRadius: 10,
-  //     overflow: 'hidden',
-  //   },
-  //   modalView: {
-  //     margin: 20,
-  //     backgroundColor: "#364f77",
-  //     borderRadius: 20,
-  //     padding: 5,
-  //     alignItems: "center",
-  //     shadowColor: "#000",
-  //     shadowOffset: {
-  //       width: 0,
-  //       height: 2,
-  //     },
-  //   },
-  //   descriptionText: {
-  //     marginBottom: 50,
-  //     textAlign: "center",
-  //     marginTop: 100
-  //   },
-  //   container: {
-  //     flex: 1,
-  //     height: 115,
-  //     // margin: 10,
-  //     marginTop:50,
-  //     marginBottom:0,
-  //     backgroundColor: "#FFF",
-  //     borderRadius: 6,
-  //     ...Platform.select({
-  //       ios: {
-  //         shadowOffset: { width: 0, height: 2 },
-  //         shadowColor: "black",
-  //         shadowOpacity: 0.8,
-  //       },
-  //     }),
-
-  //   },
-  //   image: {
-  //     height: 350,
-  //     borderRadius: 4,
-  //     // marginTop: 150
-
-  //   },
-  //   buttonDesign: {
-  //     backgroundColor: "#a0a8b6",
-  //     borderRadius: 15,
-  //     paddingVertical: 15,
-  //     paddingHorizontal: 15,
-  //     marginBottom:20,
-  //     // marginTop:10
-  //     // elevation: 8,
-  //   },
-  //   buttonText: {
-  //     color: "white",
-  //   },
   container: {
     padding: 25,
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
-  button: {
+  favoritesButton: {
     display: "flex",
     height: 60,
-    borderRadius: 6,
+    borderRadius: 90,
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
-    backgroundColor: "#2AC062",
-    shadowColor: "#2AC062",
+    backgroundColor: "#00479e",
+    shadowColor: "darkblue",
     shadowOpacity: 0.5,
     shadowOffset: {
       height: 10,
@@ -132,32 +81,39 @@ const styles = StyleSheet.create({
   closeButton: {
     display: "flex",
     height: 60,
-    borderRadius: 6,
+    borderRadius: 90,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FF3974",
-    shadowColor: "#2AC062",
+    backgroundColor: "#a0a8b6",
+    shadowColor: "darkblue",
     shadowOpacity: 0.5,
     shadowOffset: {
       height: 10,
       width: 0,
     },
     shadowRadius: 25,
+    marginBottom: 10,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: "#a0a8b6",
     fontSize: 22,
   },
   image: {
-    marginTop: 150,
+    marginTop: 90,
     marginBottom: 10,
     width: "100%",
     height: 350,
+    borderRadius: 72,
   },
-  text: {
+  titleText: {
     fontSize: 24,
-    marginBottom: 30,
-    padding: 40,
+    marginBottom: 5,
+    padding: 20,
+  },
+  descriptionText: {
+    fontSize: 15,
+    marginBottom: 5,
+    padding: 20,
   },
   closeText: {
     fontSize: 24,
