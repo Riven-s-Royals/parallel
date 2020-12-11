@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Image,
@@ -6,11 +6,11 @@ import {
   StyleSheet,
   Modal,
   TouchableOpacity,
-} from "react-native";
-import { addToFavorites } from "./storage";
+} from 'react-native';
+import { addToFavorites } from './storage';
 
-const favoriteAndClose = (locationInfo, userEmail, setModalCallback) => {
-  addToFavorites(locationInfo, userEmail);
+const favoriteAndClose = (locationInfo, email, setModalCallback) => {
+  addToFavorites(locationInfo, email);
   setModalCallback();
 };
 
@@ -23,7 +23,6 @@ const ParentModal = (props) => {
   let image = props.objectDetails ? {uri: props.objectDetails.image} : {uri: props.currentLocation.img};
   let name = props.objectDetails ? props.objectDetails.name : props.currentLocation.name;
   let description = props.objectDetails ? props.objectDetails.description : props.currentLocation.description
-
   return (
     <View style={styles.container}>
       <Modal
@@ -31,10 +30,9 @@ const ParentModal = (props) => {
         transparent={false}
         visible={props.modalState}
         onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
+          Alert.alert('Modal has been closed.');
         }}
       >
-
         <Image style={styles.image} source={image} />
 
         <Text style={styles.titleText}>{name}</Text>
@@ -47,11 +45,7 @@ const ParentModal = (props) => {
         <TouchableOpacity
           style={styles.favoritesButton}
           onPress={() =>
-            favoriteAndClose(
-              props.currentLocation,
-              props.userInfo,
-              props.setModal
-            )
+            favoriteAndClose(props.currentLocation, props.email, props.setModal)
           }
         >
           <Text style={styles.buttonText}>Add To Favorites</Text>
@@ -65,18 +59,18 @@ const styles = StyleSheet.create({
   container: {
     padding: 25,
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   favoritesButton: {
-    display: "flex",
+    display: 'flex',
     height: 60,
     borderRadius: 90,
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-    backgroundColor: "#00479e",
-    shadowColor: "darkblue",
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: '#00479e',
+    shadowColor: 'darkblue',
     shadowOpacity: 0.5,
     shadowOffset: {
       height: 10,
@@ -85,13 +79,13 @@ const styles = StyleSheet.create({
     shadowRadius: 25,
   },
   closeButton: {
-    display: "flex",
+    display: 'flex',
     height: 60,
     borderRadius: 90,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#a0a8b6",
-    shadowColor: "darkblue",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#a0a8b6',
+    shadowColor: 'darkblue',
     shadowOpacity: 0.5,
     shadowOffset: {
       height: 10,
@@ -101,13 +95,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   buttonText: {
-    color: "#a0a8b6",
+    color: '#a0a8b6',
     fontSize: 22,
   },
   image: {
     marginTop: 90,
     marginBottom: 10,
-    width: "100%",
+    width: '100%',
     height: 350,
     borderRadius: 72,
   },
@@ -123,8 +117,8 @@ const styles = StyleSheet.create({
   },
   closeText: {
     fontSize: 24,
-    color: "#00479e",
-    textAlign: "center",
+    color: '#00479e',
+    textAlign: 'center',
   },
 });
 
