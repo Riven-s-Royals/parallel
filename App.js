@@ -13,7 +13,7 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import { MAPBOXGL_ACCESS_TOKEN } from './secrets';
 import RenderAnnotation from './renderAnnotation';
-import { renderInner, renderHeader } from './drawer';
+import { renderInner, renderHeader, renderInnerFavorites } from './drawer';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
 import { getCurrentUserInfo, signIn } from './signIn';
@@ -27,24 +27,19 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      permissionsGranted: null,
-      loading: false,
       userCoords: [],
       locations: [],
       modalVisible: false,
-      // foursquare: [],
       userInfo: '',
       email: null,
       favorites: [],
       favoriteClick: false,
       currentLocation: null
     };
-    this.requestPermission = this.requestPermission.bind(this);
     this.getUserLocation = this.getUserLocation.bind(this);
     this.getFirestoreLocations = this.getFirestoreLocations.bind(this);
     this.handleSignIn = this.handleSignIn.bind(this);
     this.getUserFavorites = this.getUserFavorites.bind(this);
-    // this.get4SqVenues = this.get4SqVenues.bind(this);
     this.setModalVisible = this.setModalVisible.bind(this);
   }
 
@@ -55,47 +50,17 @@ class App extends React.Component {
         console.log('authorization result:', res);
       });
     }
-    if (Platform.OS === 'android') {
-      this.requestPermission();
-    } else {
-      this.getUserLocation();
-    }
-    //checking if user is already signed in w/ Google
-    //if not, they will be asked to sign in
-    const { userInfo } = await getCurrentUserInfo();
-    if (userInfo.user.email) {
+    this.getUserLocation();
+    // checking if user is already signed in w/ Google
+    const user = await getCurrentUserInfo();
+    if (user) {
       this.setState({
-        email: userInfo.user.email,
+        email: user.email,
       });
+      console.log('Signed in silently with Google!');
       await this.getUserFavorites();
     }
-    console.log('Signed in silently with Google!');
-
     await this.getFirestoreLocations();
-    // await this.get4SqVenues();
-  }
-
-  async requestPermission() {
-    //requests user permission for location on Android devices
-    try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-      ]).then((result) => {
-        console.log('result', result);
-        if (
-          result['android.permission.ACCESS_COARSE_LOCATION'] &&
-          result['android.permission.ACCESS_FINE_LOCATION'] === 'granted'
-        ) {
-          this.getUserLocation();
-          this.setState({
-            permissionsGranted: true,
-          });
-        }
-      });
-    } catch (err) {
-      console.warn('err', err);
-    }
   }
 
   getUserLocation() {
@@ -137,12 +102,13 @@ class App extends React.Component {
         locations: placesArray,
       };
     });
+    // console.log('one location obj', this.state.locations[3]);
   }
 
   async handleSignIn() {
     try {
       const { userInfo } = await signIn();
-      if (userInfo.user.email) {
+      if (userInfo) {
         this.setState({
           email: userInfo.user.email,
         });
@@ -156,37 +122,38 @@ class App extends React.Component {
 
   async getUserFavorites() {
     //pulls crowsourced location submissions from firestore
+    //if user is already in firestore
     const snapshot = await firestore()
       .collection('users')
       .doc(this.state.email)
       .get();
     if (snapshot.exists) {
       return await Promise.all(
-        snapshot.data().favorites.map(async (ref) => {
-          const location = await ref.get();
+        snapshot.data().favorites.map(async (location) => {
           this.setState((prevState) => {
             return {
               ...prevState,
-              favorites: [...prevState.favorites, location.data()],
+              favorites: [...prevState.favorites, location],
             };
           });
         })
       );
     } else {
-      console.log('No such document!');
+      //if user is not already in firestore,
+      //create an account w/ user email from this.state
+      if (this.state.email !== null) {
+        const data = {
+          favorites: [],
+        };
+        const res = await firestore()
+          .collection('users')
+          .doc(this.state.email)
+          .set(data);
+      }
     }
   }
 
-  // async get4SqVenues() {
-  //   const userCoordinates = this.state.userCoords;
-  //   const venuesArray = await browse(userCoordinates);
-  //   this.setState((prevState) => {
-  //     return {
-  //       ...prevState,
-  //       foursquare: venuesArray,
-  //     };
-  //   });
-  // }
+
 
   setModalVisible = (index = null) => {
    if (index){
@@ -209,6 +176,7 @@ class App extends React.Component {
             onPress={() => this.props.navigation.navigate('Camera')}
           />
         </View>
+
         <View style={styles.userButton}>
           <Icon.Button
             name="user"
@@ -218,7 +186,7 @@ class App extends React.Component {
             onPress={this.handleSignIn}
           />
         </View>
-        {this.state.email && (
+        {this.state.email ? (
           <View style={styles.heartButton}>
             <Icon.Button
               name="heart"
@@ -228,6 +196,16 @@ class App extends React.Component {
               onPress={() =>
                 this.setState({ favoriteClick: !this.state.favoriteClick })
               }
+            />
+          </View>
+        ) : (
+          <View style={styles.userButton}>
+            <Icon.Button
+              name="user"
+              size={30}
+              color="dimgrey"
+              backgroundColor="#FFFFFF"
+              onPress={this.handleSignIn}
             />
           </View>
         )}
@@ -270,31 +248,24 @@ class App extends React.Component {
         ) : (
           <Text>Loading...</Text>
         )}
-        {this.state.favoriteClick ? (
-          this.state.favorites.length > 0 && (
-            <BottomSheet
-              ref={this.myRef}
-              snapPoints={[800, 125]}
-              renderHeader={renderHeader}
-              renderContent={() => renderInner(this.state.favorites)}
-              initialSnap={1}
-            />
-          )
-        ) : (
-          // ||
-          // (this.state.favorites.length === 0 && (
-          //   <BottomSheet
-          //     ref={this.myRef}
-          //     snapPoints={[800, 125]}
-          //     renderHeader={<Text>No Favorites Yet</Text>}
-          //     initialSnap={1}
-          //   />
-          // ))
+        {this.state.email && this.state.favoriteClick ? (
           <BottomSheet
             ref={this.myRef}
             snapPoints={[800, 125]}
             renderHeader={renderHeader}
-            renderContent={() => renderInner(this.state.locations)}
+            renderContent={() =>
+              renderInnerFavorites(this.state.favorites, this.state.email)
+            }
+            initialSnap={1}
+          />
+        ) : (
+          <BottomSheet
+            ref={this.myRef}
+            snapPoints={[800, 125]}
+            renderHeader={renderHeader}
+            renderContent={() =>
+              renderInner(this.state.locations, this.state.email)
+            }
             initialSnap={1}
           />
         )}
@@ -325,7 +296,7 @@ const styles = StyleSheet.create({
   },
   heartButton: {
     position: 'absolute',
-    top: '19%',
+    top: '12%',
     alignSelf: 'flex-end',
   },
   centeredView: {

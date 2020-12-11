@@ -44,8 +44,8 @@ GoogleSignin.configure({
 export const signIn = async () => {
   try {
     await GoogleSignin.hasPlayServices();
-    const userInfo = await GoogleSignin.signIn();
-    return { userInfo };
+    const { userInfo } = await GoogleSignin.signIn();
+    return userInfo;
   } catch (error) {
     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
       // user cancelled the login flow
@@ -65,16 +65,9 @@ export const signIn = async () => {
 
 export const getCurrentUserInfo = async () => {
   try {
-    const userInfo = await GoogleSignin.signInSilently();
-    return { userInfo };
+    const { user } = await GoogleSignin.signInSilently();
+    return user;
   } catch (error) {
-    if (error.code === statusCodes.SIGN_IN_REQUIRED) {
-      // user has not signed in yet
-      console.log(`User hasn't signed in yet.`);
-      signIn();
-    } else {
-      // some other error
-      console.log('Error signing in silently.');
-    }
+    console.log('Error signing in silently.');
   }
 };

@@ -1,5 +1,6 @@
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+
 export const uploadImageToStorage = async (path, imageName) => {
   try {
     let reference = storage().ref(imageName);
@@ -10,6 +11,7 @@ export const uploadImageToStorage = async (path, imageName) => {
     console.log('Error uploading image to storage:', error);
   }
 };
+
 export const addToFavorites = async (locationInfo, email) => {
   //adds location info to users firestore favorites
   try {
@@ -23,3 +25,4 @@ export const addToFavorites = async (locationInfo, email) => {
     console.log('Error adding location to favorites:', error);
   }
 };
+
