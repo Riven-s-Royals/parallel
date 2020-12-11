@@ -9,7 +9,7 @@ const RenderAnnotation = (props) => {
       key={`${props.source}${props.idx}`}
       id={`${props.source}Annotation`}
       coordinate={props.coordinates}
-      onSelected={props.setModal}
+      onSelected={ () => props.setModal(props.idx)}
     >
       <View
         style={{

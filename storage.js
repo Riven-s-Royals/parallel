@@ -25,3 +25,4 @@ export const addToFavorites = async (locationInfo, email) => {
     console.log('Error adding location to favorites:', error);
   }
 };
+

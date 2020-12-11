@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, TextInput, View, Button } from 'react-native';
+import { Text, TextInput, View, Button, Alert } from 'react-native';
 import { uploadImageToStorage } from './storage';
 import Geolocation from 'react-native-geolocation-service';
 import firestore, { GeoPoint } from '@react-native-firebase/firestore';
@@ -11,9 +11,10 @@ export class Fields extends React.Component {
       name: '',
       description: '',
       userCoords: [],
-    };
-    this.getUserLocation = this.getUserLocation.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+      modalVisible: false
+    }
+    this.getUserLocation = this.getUserLocation.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   componentDidMount() {
@@ -63,8 +64,10 @@ export class Fields extends React.Component {
         name: name,
       })
       .then(() => {
-        this.props.navigation.navigate('Parallel');
-      });
+      const modalObject = {image:imagePath, name:name, description:description}
+      this.props.navigation.navigate('Parallel', {modalObject})
+      setTimeout(this.props.renderModal,1000)
+    });
   }
 
   render() {
