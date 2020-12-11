@@ -37,6 +37,7 @@ class App extends React.Component {
       email: null,
       favorites: [],
       favoriteClick: false,
+      currentLocation: null
     };
     this.requestPermission = this.requestPermission.bind(this);
     this.getUserLocation = this.getUserLocation.bind(this);
@@ -187,7 +188,10 @@ class App extends React.Component {
   //   });
   // }
 
-  setModalVisible = () => {
+  setModalVisible = (index = null) => {
+   if (index){
+     this.setState({currentLocation: this.state.locations[index]})
+   }
     this.setState({ modalVisible: !this.state.modalVisible });
   };
 
@@ -260,7 +264,8 @@ class App extends React.Component {
                   />
                 );
               })}
-            <ParentModal modalState={this.state.modalVisible} setModal={this.setModalVisible} />
+              {this.state.currentLocation && <ParentModal modalState={this.state.modalVisible} setModal={this.setModalVisible} userInfo={this.state.userInfo} currentLocation={this.state.currentLocation}/>}
+            
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
