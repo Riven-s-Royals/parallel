@@ -48,10 +48,15 @@ class Camera extends React.Component {
       modalVisible: false,
     };
     this.takePicture = this.takePicture.bind(this);
+    this.renderModal = this.renderModal.bind(this);
   }
 
   landmarkAlert (locations) {
     Alert.alert(`Landmark: ${locations[0].landmark}`)
+  }
+
+  renderModal () {
+    this.props.route.params.setModalVisible()
   }
 
   takePicture = async () => {
@@ -94,15 +99,7 @@ render() {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Text style={styles.modalText}>Enter Landmark Information Here</Text>
-              <Fields navigation={this.props.navigation} image={this.state.imageUri} />
-                {/* <TouchableHighlight
-                style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
-                onPress={() => {
-                  this.setState({modalVisible: !modalVisible});
-                }}
-              >
-                <Text style={styles.textStyle}>Hide Modal</Text>
-              </TouchableHighlight> */}
+              <Fields renderModal={this.renderModal} navigation={this.props.navigation} image={this.state.imageUri} />
               </View>
             </View>
           </Modal>

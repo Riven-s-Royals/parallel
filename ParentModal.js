@@ -15,19 +15,9 @@ const favoriteAndClose = (locationInfo, userEmail, setModalCallback) => {
 };
 
 const ParentModal = (props) => {
-  console.log("PROPS IN PARENT MODAL", props);
-  // return(
-  //   <Text>Hello World</Text>
-  // )
-  let image = props.objectDetails
-    ? { uri: props.objectDetails.image }
-    : { uri: props.currentLocation.img };
-  let name = props.objectDetails
-    ? props.objectDetails.name
-    : props.currentLocation.name;
-  let description = props.objectDetails
-    ? props.objectDetails.description
-    : props.currentLocation.description;
+  let image = props.objectDetails ? {uri: props.objectDetails.image} : {uri: props.currentLocation.img};
+  let name = props.objectDetails ? props.objectDetails.name : props.currentLocation.name;
+  let description = props.objectDetails ? props.objectDetails.description : props.currentLocation.description
   return (
     <View style={styles.container}>
       <Modal
@@ -38,6 +28,7 @@ const ParentModal = (props) => {
           Alert.alert("Modal has been closed.");
         }}
       >
+
         <Image style={styles.image} source={image} />
 
         <Text style={styles.titleText}>{name}</Text>
