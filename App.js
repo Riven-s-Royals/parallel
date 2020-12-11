@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  StyleSheet,
-  View,
-  Platform,
-  Text,
-  LogBox,
-  Modal,
-  TouchableHighlight,
-} from 'react-native';
+import { StyleSheet, View, Platform, Text, LogBox } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import BottomSheet from 'reanimated-bottom-sheet';
 import MapboxGL from '@react-native-mapbox-gl/maps';
@@ -17,7 +9,7 @@ import { renderInner, renderHeader, renderInnerFavorites } from './drawer';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
 import { getCurrentUserInfo, signIn } from './signIn';
-import ParentModal from './ParentModal'
+import ParentModal from './ParentModal';
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -40,6 +32,61 @@ class App extends React.Component {
     this.handleSignIn = this.handleSignIn.bind(this);
     this.getUserFavorites = this.getUserFavorites.bind(this);
     this.setModalVisible = this.setModalVisible.bind(this);
+    this.locationsSubscriber = firestore()
+      .collection('locations')
+      .onSnapshot((allLocations) => {
+        let placesArray = [];
+        allLocations.docs.map((location) => {
+          let locationObj = location.data();
+          if (
+            //narrows geographic range of what is rendered
+            //to be in user's general area
+            this.state.userCoords[1] - locationObj.coordinates.latitude >
+              -0.1 &&
+            this.state.userCoords[1] - locationObj.coordinates.latitude < 0.1 &&
+            this.state.userCoords[0] - locationObj.coordinates.longitude >
+              -0.1 &&
+            this.state.userCoords[0] - locationObj.coordinates.longitude < 0.1
+          ) {
+            placesArray.push(locationObj);
+          }
+        });
+        this.setState((prevState) => {
+          return {
+            ...prevState,
+            locations: placesArray,
+          };
+        });
+      });
+    // this.favoritesSubscriber = firestore()
+    //   .collection('users')
+    //   .doc(this.state.email)
+    //   .onSnapshot((allLocations) => {
+    //     let placesArray = [];
+    //     allLocations.docs.map((location) => {
+    //       let locationObj = location.data();
+    //       if (
+    //         //narrows geographic range of what is rendered
+    //         //to be in user's general area
+    //         this.state.userCoords[1] - locationObj.coordinates.latitude >
+    //           -0.1 &&
+    //         this.state.userCoords[1] - locationObj.coordinates.latitude < 0.1 &&
+    //         this.state.userCoords[0] - locationObj.coordinates.longitude >
+    //           -0.1 &&
+    //         this.state.userCoords[0] - locationObj.coordinates.longitude < 0.1
+    //       ) {
+    //         placesArray.push(locationObj);
+    //       }
+    //     });
+    //     this.setState((prevState) => {
+    //       return {
+    //         ...prevState,
+    //         locations: placesArray,
+    //       };
+    //     });
+    //   });
+    this.locationsSubscriber = this.locationsSubscriber.bind(this);
+    // this.favoritesSubscriber = this.favoritesSubscriber.bind(this);
   }
 
   async componentDidMount() {
@@ -101,7 +148,6 @@ class App extends React.Component {
         locations: placesArray,
       };
     });
-    // console.log('one location obj', this.state.locations[3]);
   }
 
   async handleSignIn() {
@@ -170,23 +216,13 @@ class App extends React.Component {
             onPress={() => this.props.navigation.navigate('Camera')}
           />
         </View>
-
-        <View style={styles.userButton}>
-          <Icon.Button
-            name="user"
-            size={39}
-            color="#a0a8b6"
-            backgroundColor="#364f77"
-            onPress={this.handleSignIn}
-          />
-        </View>
         {this.state.email ? (
           <View style={styles.heartButton}>
             <Icon.Button
               name="heart"
               size={30}
               color="#a0a8b6"
-              backgroundColor={this.state.favoriteClick ? "#c22f72" : '#364f77'}
+              backgroundColor={this.state.favoriteClick ? '#c22f72' : '#364f77'}
               onPress={() =>
                 this.setState({ favoriteClick: !this.state.favoriteClick })
               }
@@ -196,9 +232,9 @@ class App extends React.Component {
           <View style={styles.userButton}>
             <Icon.Button
               name="user"
-              size={30}
-              color="dimgrey"
-              backgroundColor="#FFFFFF"
+              size={39}
+              color="#a0a8b6"
+              backgroundColor="#364f77"
               onPress={this.handleSignIn}
             />
           </View>
@@ -236,7 +272,10 @@ class App extends React.Component {
                   />
                 );
               })}
-            <ParentModal modalState={this.state.modalVisible} setModal={this.setModalVisible} />
+            <ParentModal
+              modalState={this.state.modalVisible}
+              setModal={this.setModalVisible}
+            />
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
@@ -280,6 +319,7 @@ const styles = StyleSheet.create({
   cameraButton: {
     position: 'absolute',
     top: '4%',
+    display: 'flex',
     alignSelf: 'flex-end',
   },
   userButton: {
