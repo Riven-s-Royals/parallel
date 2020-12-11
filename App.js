@@ -17,6 +17,7 @@ import { renderInner, renderHeader, renderInnerFavorites } from './drawer';
 import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
 import { getCurrentUserInfo, signIn } from './signIn';
+import ParentModal from './ParentModal'
 
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -163,10 +164,20 @@ class App extends React.Component {
         <View style={styles.cameraButton}>
           <Icon.Button
             name="camera-retro"
-            size={30}
-            color="dimgrey"
-            backgroundColor="#FFFFFF"
+            size={29}
+            color="#a0a8b6"
+            backgroundColor="#364f77"
             onPress={() => this.props.navigation.navigate('Camera')}
+          />
+        </View>
+
+        <View style={styles.userButton}>
+          <Icon.Button
+            name="user"
+            size={39}
+            color="#a0a8b6"
+            backgroundColor="#364f77"
+            onPress={this.handleSignIn}
           />
         </View>
         {this.state.email ? (
@@ -174,8 +185,8 @@ class App extends React.Component {
             <Icon.Button
               name="heart"
               size={30}
-              color="dimgrey"
-              backgroundColor={this.state.favoriteClick ? 'silver' : '#FFFFFF'}
+              color="#a0a8b6"
+              backgroundColor={this.state.favoriteClick ? "#c22f72" : '#364f77'}
               onPress={() =>
                 this.setState({ favoriteClick: !this.state.favoriteClick })
               }
@@ -225,34 +236,7 @@ class App extends React.Component {
                   />
                 );
               })}
-            <View style={styles.centeredView}>
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={this.state.modalVisible}
-                onRequestClose={() => {
-                  Alert.alert('Modal has been closed.');
-                }}
-              >
-                <View style={styles.centeredView}>
-                  <View style={styles.modalView}>
-                    <Text style={styles.modalText}>Hello World!</Text>
-
-                    <TouchableHighlight
-                      style={{
-                        ...styles.openButton,
-                        backgroundColor: 'grey',
-                      }}
-                      onPress={() => {
-                        this.setModalVisible();
-                      }}
-                    >
-                      <Text style={styles.textStyle}>Hide Modal</Text>
-                    </TouchableHighlight>
-                  </View>
-                </View>
-              </Modal>
-            </View>
+            <ParentModal modalState={this.state.modalVisible} setModal={this.setModalVisible} />
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
@@ -278,27 +262,6 @@ class App extends React.Component {
             initialSnap={1}
           />
         )}
-        {/* {this.state.email && !this.state.favoriteClick && (
-          <BottomSheet
-            ref={this.myRef}
-            snapPoints={[800, 125]}
-            renderHeader={renderHeader}
-            renderContent={() =>
-              renderInnerFavorites(this.state.locations, this.state.email)
-            }
-            initialSnap={1}
-          />
-        )} */}
-
-        {/* {!this.state.email && (
-          <BottomSheet
-            ref={this.myRef}
-            snapPoints={[800, 125]}
-            renderHeader={renderHeader}
-            renderContent={() => renderInner(this.state.locations)}
-            initialSnap={1}
-          />
-        )} */}
       </View>
     );
   }
@@ -321,7 +284,7 @@ const styles = StyleSheet.create({
   },
   userButton: {
     position: 'absolute',
-    top: '12%',
+    top: '11%',
     alignSelf: 'flex-end',
   },
   heartButton: {
