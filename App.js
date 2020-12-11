@@ -201,7 +201,7 @@ class App extends React.Component {
             size={30}
             color="dimgrey"
             backgroundColor="#FFFFFF"
-            onPress={() => this.props.navigation.navigate('Camera')}
+            onPress={() => this.props.navigation.navigate('Camera', {setModalVisible: this.setModalVisible})}
           />
         </View>
         <View style={styles.userButton}>
@@ -226,7 +226,7 @@ class App extends React.Component {
             />
           </View>
         )}
-
+        
         {this.state.userCoords ? (
           <MapboxGL.MapView
             styleURL={MapboxGL.StyleURL.Street}
@@ -259,7 +259,7 @@ class App extends React.Component {
                   />
                 );
               })}
-            <View style={styles.centeredView}>
+            {/* <View style={styles.centeredView}>
               <Modal
                 animationType="slide"
                 transparent={true}
@@ -286,7 +286,36 @@ class App extends React.Component {
                   </View>
                 </View>
               </Modal>
-            </View>
+            </View> */}
+            {this.state.modalVisible && 
+          <View style={styles.centeredView}>
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={this.state.modalVisible}
+                onRequestClose={() => {
+                  Alert.alert('Modal has been closed.');
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Text style={styles.modalText}>Hello World!</Text>
+
+                    <TouchableHighlight
+                      style={{
+                        ...styles.openButton,
+                        backgroundColor: 'grey',
+                      }}
+                      onPress={() => {
+                        this.setModalVisible();
+                      }}
+                    >
+                      <Text style={styles.textStyle}>Hide Modal</Text>
+                    </TouchableHighlight>
+                  </View>
+                </View>
+              </Modal>
+            </View>}
           </MapboxGL.MapView>
         ) : (
           <Text>Loading...</Text>
