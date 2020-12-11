@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Alert,
   StyleSheet,
   View,
   Platform,
@@ -12,6 +13,21 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { addToFavorites } from './storage';
 
+
+
+const addAndNotify = (individualItem, email) => {
+  addToFavorites(individualItem,email)
+  Alert.alert(
+    "Success",
+    "Added to Favorites!",
+    [
+      { text: "OK", onPress: () => console.log("OK Pressed") }
+    ],
+    { cancelable: false }
+  );
+
+}
+
 export const renderHeader = () => {
   return (
     <View style={styles.header}>
@@ -21,6 +37,9 @@ export const renderHeader = () => {
     </View>
   );
 };
+
+
+
 
 export const renderInner = (allPointsArray, email) => {
   return (
@@ -88,7 +107,7 @@ const renderItemComponent = (item, email) => {
             size={25}
             color="dimgrey"
             backgroundColor="#f7f5eee8"
-            onPress={() => addToFavorites(individualItem, email)}
+            onPress={() => addAndNotify(individualItem, email)}
           />
         </View>
       )}

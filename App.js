@@ -278,9 +278,9 @@ class App extends React.Component {
                   />
                 );
               })}
-//             {this.state.modalVisible && 
-//               <ParentModal objectDetails={this.props.route.params.modalObject} modalState={this.state.modalVisible} setModal={this.setModalVisible} />
-//             }
+             {/* {this.state.modalVisible && 
+               <ParentModal objectDetails={this.props.route.params.modalObject} modalState={this.state.modalVisible} setModal={this.setModalVisible} />
+             } */}
 
               {this.state.currentLocation && <ParentModal modalState={this.state.modalVisible} setModal={this.setModalVisible} userInfo={this.state.userInfo} currentLocation={this.state.currentLocation}/>}
           </MapboxGL.MapView>

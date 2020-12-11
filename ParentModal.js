@@ -43,7 +43,7 @@ const ParentModal = (props) => {
           onPress={() =>
             favoriteAndClose(
               props.currentLocation,
-              props.userInfo,
+              props.email,
               props.setModal
             )
           }
