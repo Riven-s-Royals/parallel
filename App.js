@@ -199,7 +199,7 @@ class App extends React.Component {
         <View style={styles.cameraButton}>
           <Icon.Button
             name="camera-retro"
-            size={28}
+            size={29}
             color="#a0a8b6"
             backgroundColor="#364f77"
             onPress={() => this.props.navigation.navigate('Camera')}
@@ -208,7 +208,7 @@ class App extends React.Component {
         <View style={styles.userButton}>
           <Icon.Button
             name="user"
-            size={37}
+            size={39}
             color="#a0a8b6"
             backgroundColor="#364f77"
             onPress={this.handleSignIn}
@@ -315,12 +315,12 @@ const styles = StyleSheet.create({
   },
   userButton: {
     position: 'absolute',
-    top: '12%',
+    top: '11%',
     alignSelf: 'flex-end',
   },
   heartButton: {
     position: 'absolute',
-    top: '20%',
+    top: '19%',
     alignSelf: 'flex-end',
   },
   centeredView: {
