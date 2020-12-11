@@ -9,7 +9,9 @@ import {
 } from "react-native";
 
 const ParentModal = (props) => {
-  const image = {uri: props.objectDetails.image}
+  let image = props.objectDetails ? {uri: props.objectDetails.image} : {uri: props.currentLocation.img};
+  let name = props.objectDetails ? props.objectDetails.name : props.currentLocation.name;
+  let description = props.objectDetails ? props.objectDetails.description : props.currentLocation.description
   return (
     <View style={styles.container}>
       <Modal
@@ -26,10 +28,10 @@ const ParentModal = (props) => {
           source={image}
         />
 
-        <Text style={styles.text}>{props.objectDetails.name}</Text>
+        <Text style={styles.text}>{name}</Text>
 
         <Text style={styles.text}>
-        {props.objectDetails.description}
+        {description}
         </Text>
 
         <TouchableHighlight style={styles.closeButton} onPress={props.setModal}>
