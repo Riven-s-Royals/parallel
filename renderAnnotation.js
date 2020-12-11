@@ -3,7 +3,7 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 import { View } from 'react-native';
 
 const RenderAnnotation = (props) => {
-  let color = props.source === 'user' ? '#023e8a' : '#00b4d8';
+  let color = props.source === 'user' ? '#c22f72' : '#364f77';
   return (
     <MapboxGL.PointAnnotation
       key={`${props.source}${props.idx}`}

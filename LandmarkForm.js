@@ -58,7 +58,8 @@ export class Fields extends React.Component {
       name: name,
     })
     .then(() => {
-      this.props.navigation.navigate('Parallel')
+      const modalObject = {image:imagePath, name:name, description:description}
+      this.props.navigation.navigate('Parallel', {modalObject})
       setTimeout(this.props.renderModal,1000)
     })
   }
