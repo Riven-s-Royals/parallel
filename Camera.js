@@ -72,16 +72,16 @@ class Camera extends React.Component {
         const data = await this.camera.takePictureAsync(options);
         console.log(data.uri);
         this.setState({ imageUri: data.uri });
-        setTimeout(()=>this.setState({isVisible: false}),5000)
+        setTimeout(()=>this.setState({ isVisible: false }),5000)
         // const landmarks = await processLandmarks(data.uri)
         // const landmarks = await processLandmarks('/Users/jamesgill/Downloads/bean_dawn_5d5624c9-38bc-42c6-a0bc-3b84be7dca9b.jpg')
         // console.log(landmarks)
-        const landmarks = [];
-        if (landmarks.length > 0) {
-          this.landmarkAlert(landmarks)
-        } else {
-          this.setState({modalVisible: true})
-        }
+        // const landmarks = [];
+        // if (landmarks.length > 0) {
+        //   this.landmarkAlert(landmarks)
+        // } else {
+        setTimeout(()=>this.setState({modalVisible: true}),5000)
+        // }
       }
     } catch (error) {
         console.error(error);
@@ -123,7 +123,7 @@ render() {
       return (
         <FadeInView style={styles.loading}>
           <LoadingCarousel />
-          <Image resizeMode='contain' style={styles.logo} source={require('./assets/parallel_mock_logo2.png')}/>
+          <Image resizeMode='contain' style={styles.logo} source={require('./assets/parallelFull_2.png')}/>
         </FadeInView>)
     return (
       <View style={styles.container}>
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   },
   loading: {
     flex: 1,
-    backgroundColor: '#0053df',
+    backgroundColor: '#364f77',
   },
   logo: {
     flex: 1,
