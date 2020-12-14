@@ -13,8 +13,6 @@ import {
   TouchableHighlight,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import { uploadImageToStorage } from './storage';
-import ml from '@react-native-firebase/ml';
 import {Fields} from './LandmarkForm'
 import {LoadingCarousel} from './Carousel'
 
@@ -73,15 +71,7 @@ class Camera extends React.Component {
         console.log(data.uri);
         this.setState({ imageUri: data.uri });
         setTimeout(()=>this.setState({ isVisible: false }),5000)
-        // const landmarks = await processLandmarks(data.uri)
-        // const landmarks = await processLandmarks('/Users/jamesgill/Downloads/bean_dawn_5d5624c9-38bc-42c6-a0bc-3b84be7dca9b.jpg')
-        // console.log(landmarks)
-        // const landmarks = [];
-        // if (landmarks.length > 0) {
-        //   this.landmarkAlert(landmarks)
-        // } else {
         setTimeout(()=>this.setState({modalVisible: true}),5000)
-        // }
       }
     } catch (error) {
         console.error(error);
@@ -152,17 +142,6 @@ render() {
       </View>
     );
   }
-}
-
-async function processLandmarks(localPath) {
-  const landmarks = await ml().cloudLandmarkRecognizerProcessImage(localPath);
-  // landmarks.forEach(landmark => {
-  //   console.log('Landmark name: ', landmark.landmark);
-  // //   console.log('Landmark locations: ', block.locations);
-  // //   console.log('Confidence score: ', block.confidence);
-  // });
-  // console.log('LANDMARKS INSIDE FUNCTION', landmarks)
-  return landmarks;
 }
 
 const styles = StyleSheet.create({
