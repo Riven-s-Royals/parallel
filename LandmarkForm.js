@@ -107,7 +107,7 @@ export class Fields extends React.Component {
         <Button
           onPress={() =>
             this.handleSubmit(
-              this.props.image,
+              '/Users/jamesgill/Documents/Fullstack/Senior_Phase/Capstone/parallel/assets/general_store_img.jpg',
               this.state.name,
               this.state.description
             )

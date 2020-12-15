@@ -64,15 +64,15 @@ class Camera extends React.Component {
 
   takePicture = async () => {
     try {
-      if (this.camera) {
+      // if (this.camera) {
         this.setState({ isVisible: true })
-        const options = { quality: 0.5, base64: true };
-        const data = await this.camera.takePictureAsync(options);
-        console.log(data.uri);
-        this.setState({ imageUri: data.uri });
+        //const options = { quality: 0.5, base64: true };
+        //const data = await this.camera.takePictureAsync(options);
+        // console.log(data.uri);
+        // this.setState({ imageUri: data.uri });
         setTimeout(()=>this.setState({ isVisible: false }),5000)
         setTimeout(()=>this.setState({modalVisible: true}),5000)
-      }
+      // }
     } catch (error) {
         console.error(error);
     }
@@ -117,7 +117,7 @@ render() {
         </FadeInView>)
     return (
       <View style={styles.container}>
-        <RNCamera
+        {/* <RNCamera
           ref={(ref) => {
             this.camera = ref;
           }}
@@ -128,7 +128,8 @@ render() {
           onGoogleVisionBarcodesDetected={({ barcodes }) => {
             console.log(barcodes);
           }}
-        />
+        /> */}
+        <Image style={styles.preview} source={require('/Users/jamesgill/Documents/Fullstack/Senior_Phase/Capstone/parallel/assets/general_store_img.jpg')} />
         <View
           style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}
         >
@@ -153,7 +154,8 @@ const styles = StyleSheet.create({
   preview: {
     flex: 1,
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignSelf: 'center',
+    resizeMode: 'contain',
   },
   capture: {
     flex: 0,
